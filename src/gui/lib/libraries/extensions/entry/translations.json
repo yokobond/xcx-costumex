@@ -1,0 +1,14 @@
+{
+  "en": {
+    "costumex.entry.name": "CostumeX",
+    "costumex.entry.description": "Description of this extension"
+  },
+  "ja": {
+    "costumex.entry.name": "CostumeX",
+    "costumex.entry.description": "拡張機能の説明"
+  },
+  "ja-Hira": {
+    "costumex.entry.name": "CostumeX",
+    "costumex.entry.description": "かくちょうきのうのせつめい"
+  }
+}

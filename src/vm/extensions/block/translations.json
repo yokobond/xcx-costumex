@@ -1,0 +1,14 @@
+{
+  "en": {
+    "costumex.name": "CostumeX",
+    "costumex.doIt": "do it [SCRIPT]"
+  },
+  "ja": {
+    "costumex.name": "CostumeX",
+    "costumex.doIt": "[SCRIPT] を実行する"
+  },
+  "ja-Hira": {
+    "costumex.name": "CostumeX",
+    "costumex.doIt": "[SCRIPT] をじっこうする"
+  }
+}
