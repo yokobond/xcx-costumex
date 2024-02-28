@@ -4,7 +4,7 @@ var img$1 = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standal
 
 var en$1 = {
 	"costumex.entry.name": "CostumeX",
-	"costumex.entry.description": "Description of this extension"
+	"costumex.entry.description": "Costume extension"
 };
 var ja$1 = {
 	"costumex.entry.name": "CostumeX",
@@ -43,12 +43,12 @@ var entry = {
   },
   extensionId: 'costumex',
   extensionURL: 'https://yokobond.github.io/xcx-costumex/dist/costumex.mjs',
-  collaborator: 'yokobond',
+  collaborator: 'Yengawa Lab',
   iconURL: img$2,
   insetIconURL: img$1,
   get description() {
     return formatMessage$1({
-      defaultMessage: 'an extension for Xcratch',
+      defaultMessage: 'Costume extension',
       description: 'Description for this extension',
       id: 'costumex.entry.description'
     });
@@ -2183,6 +2183,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         }, {
           opcode: 'costumesLength',
           blockType: BlockType$1.REPORTER,
+          disableMonitor: true,
           text: formatMessage({
             id: 'costumex.costumesLength',
             default: 'costumes length',
