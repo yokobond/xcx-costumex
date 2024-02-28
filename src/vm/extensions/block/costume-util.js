@@ -189,7 +189,7 @@ const loadBitmap = function (costume, runtime) {
  */
 const resizeBitmap = function (dataURL, width, height) {
     const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         const image = new Image();
         image.onload = () => {
             const canvas = document.createElement('canvas');
@@ -206,6 +206,13 @@ const resizeBitmap = function (dataURL, width, height) {
             const context = canvas.getContext('2d');
             context.drawImage(image, 0, 0, canvas.width, canvas.height);
             resolve(canvas.toDataURL(mimeString));
+            image.onload = null;
+            image.onerror = null;
+        };
+        image.onerror = function () {
+            reject(new Error('dataURL load failed.'));
+            image.onload = null;
+            image.onerror = null;
         };
         image.src = dataURL;
     });
