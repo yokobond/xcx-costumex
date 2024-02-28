@@ -24,12 +24,12 @@ const entry = {
     },
     extensionId: 'costumex',
     extensionURL: 'https://yokobond.github.io/xcx-costumex/dist/costumex.mjs',
-    collaborator: 'yokobond',
+    collaborator: 'Yengawa Lab',
     iconURL: iconURL,
     insetIconURL: insetIconURL,
     get description () {
         return formatMessage({
-            defaultMessage: 'an extension for Xcratch',
+            defaultMessage: 'Costume extension',
             description: 'Description for this extension',
             id: 'costumex.entry.description'
         });
