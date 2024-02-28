@@ -123,35 +123,6 @@ class ExtensionBlocks {
             showStatusButton: false,
             blocks: [
                 {
-                    opcode: 'takeSnapshot',
-                    blockType: BlockType.REPORTER,
-                    blockAllThreads: false,
-                    text: formatMessage({
-                        id: 'costumex.takeSnapshot',
-                        default: 'snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
-                        description: 'costumex takeSnapshot text'
-                    }),
-                    func: 'takeSnapshot',
-                    arguments: {
-                        X: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
-                        },
-                        Y: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
-                        },
-                        WIDTH: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 480
-                        },
-                        HEIGHT: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 360
-                        }
-                    }
-                },
-                {
                     opcode: 'addImageAsCostume',
                     blockType: BlockType.COMMAND,
                     text: formatMessage({
@@ -192,6 +163,51 @@ class ExtensionBlocks {
                     }
                 },
                 {
+                    opcode: 'costumeData',
+                    blockType: BlockType.REPORTER,
+                    text: formatMessage({
+                        id: 'costumex.costumeData',
+                        default: 'image data of costume [COSTUME]',
+                        description: 'CostumeX costumeData text'
+                    }),
+                    func: 'costumeData',
+                    arguments: {
+                        COSTUME: {
+                            type: ArgumentType.COSTUME,
+                            menu: 'costumeNamesMenu'
+                        }
+                    }
+                },
+                {
+                    opcode: 'takeSnapshot',
+                    blockType: BlockType.REPORTER,
+                    blockAllThreads: false,
+                    text: formatMessage({
+                        id: 'costumex.takeSnapshot',
+                        default: 'snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+                        description: 'costumex takeSnapshot text'
+                    }),
+                    func: 'takeSnapshot',
+                    arguments: {
+                        X: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        Y: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        WIDTH: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 480
+                        },
+                        HEIGHT: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 360
+                        }
+                    }
+                },
+                {
                     opcode: 'costumesLength',
                     blockType: BlockType.REPORTER,
                     disableMonitor: true,
@@ -215,22 +231,6 @@ class ExtensionBlocks {
                         INDEX: {
                             type: ArgumentType.NUMBER,
                             defaultValue: 1
-                        }
-                    }
-                },
-                {
-                    opcode: 'costumeData',
-                    blockType: BlockType.REPORTER,
-                    text: formatMessage({
-                        id: 'costumex.costumeData',
-                        default: 'image data of costume [COSTUME]',
-                        description: 'CostumeX costumeData text'
-                    }),
-                    func: 'costumeData',
-                    arguments: {
-                        COSTUME: {
-                            type: ArgumentType.COSTUME,
-                            menu: 'costumeNamesMenu'
                         }
                     }
                 }

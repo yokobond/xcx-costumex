@@ -2115,34 +2115,6 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         blockIconURI: img,
         showStatusButton: false,
         blocks: [{
-          opcode: 'takeSnapshot',
-          blockType: BlockType$1.REPORTER,
-          blockAllThreads: false,
-          text: formatMessage({
-            id: 'costumex.takeSnapshot',
-            default: 'snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
-            description: 'costumex takeSnapshot text'
-          }),
-          func: 'takeSnapshot',
-          arguments: {
-            X: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 0
-            },
-            Y: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 0
-            },
-            WIDTH: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 480
-            },
-            HEIGHT: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 360
-            }
-          }
-        }, {
           opcode: 'addImageAsCostume',
           blockType: BlockType$1.COMMAND,
           text: formatMessage({
@@ -2181,6 +2153,49 @@ var ExtensionBlocks = /*#__PURE__*/function () {
             }
           }
         }, {
+          opcode: 'costumeData',
+          blockType: BlockType$1.REPORTER,
+          text: formatMessage({
+            id: 'costumex.costumeData',
+            default: 'image data of costume [COSTUME]',
+            description: 'CostumeX costumeData text'
+          }),
+          func: 'costumeData',
+          arguments: {
+            COSTUME: {
+              type: ArgumentType$1.COSTUME,
+              menu: 'costumeNamesMenu'
+            }
+          }
+        }, {
+          opcode: 'takeSnapshot',
+          blockType: BlockType$1.REPORTER,
+          blockAllThreads: false,
+          text: formatMessage({
+            id: 'costumex.takeSnapshot',
+            default: 'snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+            description: 'costumex takeSnapshot text'
+          }),
+          func: 'takeSnapshot',
+          arguments: {
+            X: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            },
+            Y: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            },
+            WIDTH: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 480
+            },
+            HEIGHT: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 360
+            }
+          }
+        }, {
           opcode: 'costumesLength',
           blockType: BlockType$1.REPORTER,
           disableMonitor: true,
@@ -2203,21 +2218,6 @@ var ExtensionBlocks = /*#__PURE__*/function () {
             INDEX: {
               type: ArgumentType$1.NUMBER,
               defaultValue: 1
-            }
-          }
-        }, {
-          opcode: 'costumeData',
-          blockType: BlockType$1.REPORTER,
-          text: formatMessage({
-            id: 'costumex.costumeData',
-            default: 'image data of costume [COSTUME]',
-            description: 'CostumeX costumeData text'
-          }),
-          func: 'costumeData',
-          arguments: {
-            COSTUME: {
-              type: ArgumentType$1.COSTUME,
-              menu: 'costumeNamesMenu'
             }
           }
         }],
