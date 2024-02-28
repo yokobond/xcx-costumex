@@ -1906,7 +1906,7 @@ var loadBitmap = function loadBitmap(costume, runtime) {
  */
 var resizeBitmap = function resizeBitmap(dataURL, width, height) {
   var mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     var image = new Image();
     image.onload = function () {
       var canvas = document.createElement('canvas');
@@ -1923,6 +1923,13 @@ var resizeBitmap = function resizeBitmap(dataURL, width, height) {
       var context = canvas.getContext('2d');
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       resolve(canvas.toDataURL(mimeString));
+      image.onload = null;
+      image.onerror = null;
+    };
+    image.onerror = function () {
+      reject(new Error('dataURL load failed.'));
+      image.onload = null;
+      image.onerror = null;
     };
     image.src = dataURL;
   });
