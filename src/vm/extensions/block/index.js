@@ -194,6 +194,7 @@ class ExtensionBlocks {
                 {
                     opcode: 'costumesLength',
                     blockType: BlockType.REPORTER,
+                    disableMonitor: true,
                     text: formatMessage({
                         id: 'costumex.costumesLength',
                         default: 'costumes length',
