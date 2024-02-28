@@ -1,0 +1,39 @@
+name: Publish
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to publish"
+        default: "main"
+        required: true
+      publish-dir:
+        description: "Publish directory"
+        type: string
+        default: "."
+        required: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: inputs
+        run: echo "${{ toJSON(inputs) }}"
+      - name: checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          path: ./repo
+      - name: build publish directory
+        run: |
+          mkdir -p ./publish
+          cp -r ./repo/dist ./publish/dist
+          cp -r ./repo/projects ./publish/projects
+      - name: publish dist
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./publish
+          destination_dir: ${{ inputs.publish-dir }}
+          keep_files: false
