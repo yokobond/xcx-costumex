@@ -1,12 +1,16 @@
 # CostumeX
 An example extension for [Xcratch](https://xcratch.github.io/)
 
-This extension add extra-block "do it", that executes string in its input field as a sentence in Javascript and return the result.
+This extension add extra blocks to manipulate costumes of a sprite in Xcratch.
+By using this extension, you have a block to add a costume from a data URL. You can also take a snapshot of the stage and get data URL of that image. 
 
 
 ## ✨ What You Can Do With This Extension
 
 Play [Example Project](https://xcratch.github.io/editor/#https://yokobond.github.io/xcx-costumex/projects/example.sb3) to look at what you can do with "CostumeX" extension. 
+
+This project takes snapshots of the stage and saves them as costumes of a sprite. You can change the interval of taking snapshots and the number of costumes to keep. You can also change the size and position of the snapshots.
+
 <iframe src="https://xcratch.github.io/editor/player#https://yokobond.github.io/xcx-costumex/projects/example.sb3" width="540px" height="460px"></iframe>
 
 
