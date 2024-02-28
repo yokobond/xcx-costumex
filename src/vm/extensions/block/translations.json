@@ -1,14 +1,32 @@
 {
   "en": {
     "costumex.name": "CostumeX",
-    "costumex.doIt": "do it [SCRIPT]"
+    "costumex.takeSnapshot": "snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
+    "costumex.addImageAsCostume": "add image [DATA] as costume [NAME]",
+    "costumex.addImageAsCostume.defaultCostumeName": "name",
+    "costumex.deleteCostume": "delete costume [COSTUME]",
+    "costumex.costumesLength": "costumes length",
+    "costumex.costumeNameAt": "costume name at [INDEX]",
+    "costumex.costumeData": "image data of costume [COSTUME]"
   },
   "ja": {
     "costumex.name": "CostumeX",
-    "costumex.doIt": "[SCRIPT] を実行する"
+    "costumex.takeSnapshot": "スナップショット x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
+    "costumex.addImageAsCostume": "コスチューム名[NAME]で画像[DATA]を追加する",
+    "costumex.addImageAsCostume.defaultCostumeName": "名前",
+    "costumex.deleteCostume": "コスチューム[COSTUME]を削除する",
+    "costumex.costumesLength": "コスチュームの数",
+    "costumex.costumeNameAt": "[INDEX]番目のコスチュームの名前",
+    "costumex.costumeData": "コスチューム[COSTUME]のデータ"
   },
   "ja-Hira": {
     "costumex.name": "CostumeX",
-    "costumex.doIt": "[SCRIPT] をじっこうする"
+    "costumex.takeSnapshot": "スナップショット x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
+    "costumex.addImageAsCostume": "コスチュームめい[NAME]で がぞう[DATA]を ついか する",
+    "costumex.addImageAsCostume.defaultCostumeName": "なまえ",
+    "costumex.deleteCostume": "コスチューム[COSTUME]を さくじょ する",
+    "costumex.costumesLength": "コスチューム の かず",
+    "costumex.costumeNameAt": "[INDEX]ばんめ の コスチューム の なまえ",
+    "costumex.costumeData": "コスチューム[COSTUME] の データ"
   }
 }
