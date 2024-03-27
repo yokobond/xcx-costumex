@@ -2,9 +2,9 @@
 
 ## Install script for https://stretch3.github.io/
 ## execute `sh ./xcx-costumex/scripts/stretch3-install.sh`
-## suppoesed dir configuration:
+## on the dir configuration:
 ##  scratch-gui
-##      - xcx-g2s
+##      - xcx-costumex
 
 LF=$(printf '\\\012_')
 LF=${LF%_}

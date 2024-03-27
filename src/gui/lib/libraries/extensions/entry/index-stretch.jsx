@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
@@ -7,19 +8,22 @@ import {FormattedMessage} from 'react-intl';
 
 import iconURL from './entry-icon.png';
 import insetIconURL from './inset-icon.svg';
+
+const version = 'v1.0.0';
+
 const translations =
 {
     'en': {
         'costumex.entry.name': 'CostumeX',
-        'costumex.entry.description': 'Costume extension'
+        'costumex.entry.description': `Costume extension (${version})`
     },
     'ja': {
         'costumex.entry.name': 'CostumeX',
-        'costumex.entry.description': 'コスチュームの拡張'
+        'costumex.entry.description': `コスチュームの拡張 (${version})`
     },
     'ja-Hira': {
         'costumex.entry.name': 'CostumeX',
-        'costumex.entry.description': 'コスチューム の かくちょう'
+        'costumex.entry.description': `コスチューム の かくちょう (${version})`
     }
 };
 

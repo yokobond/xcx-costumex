@@ -14,6 +14,8 @@ import translations from './translations.json';
  */
 let formatMessage = messageData => messageData.defaultMessage;
 
+const version = 'v1.0.0';
+
 const entry = {
     get name () {
         return formatMessage({
@@ -28,11 +30,11 @@ const entry = {
     iconURL: iconURL,
     insetIconURL: insetIconURL,
     get description () {
-        return formatMessage({
+        return `${formatMessage({
             defaultMessage: 'Costume extension',
             description: 'Description for this extension',
             id: 'costumex.entry.description'
-        });
+        })} (${version})`;
     },
     featured: true,
     disabled: false,

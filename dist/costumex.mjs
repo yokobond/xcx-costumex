@@ -33,6 +33,7 @@ var translations$1 = {
 var formatMessage$1 = function formatMessage(messageData) {
   return messageData.defaultMessage;
 };
+var version = 'v1.0.0';
 var entry = {
   get name() {
     return formatMessage$1({
@@ -47,11 +48,11 @@ var entry = {
   iconURL: img$2,
   insetIconURL: img$1,
   get description() {
-    return formatMessage$1({
+    return "".concat(formatMessage$1({
       defaultMessage: 'Costume extension',
       description: 'Description for this extension',
       id: 'costumex.entry.description'
-    });
+    }), " (").concat(version, ")");
   },
   featured: true,
   disabled: false,
@@ -135,7 +136,7 @@ function _typeof$2(o) {
   }, _typeof$2(o);
 }
 
-function toPrimitive(t, r) {
+function toPrimitive$1(t, r) {
   if ("object" != _typeof$2(t) || !t) return t;
   var e = t[Symbol.toPrimitive];
   if (void 0 !== e) {
@@ -146,8 +147,8 @@ function toPrimitive(t, r) {
   return ("string" === r ? String : Number)(t);
 }
 
-function toPropertyKey(t) {
-  var i = toPrimitive(t, "string");
+function toPropertyKey$1(t) {
+  var i = toPrimitive$1(t, "string");
   return "symbol" == _typeof$2(i) ? i : String(i);
 }
 
@@ -157,7 +158,7 @@ function _defineProperties$1(target, props) {
     descriptor.enumerable = descriptor.enumerable || false;
     descriptor.configurable = true;
     if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, toPropertyKey(descriptor.key), descriptor);
+    Object.defineProperty(target, toPropertyKey$1(descriptor.key), descriptor);
   }
 }
 function _createClass$1(Constructor, protoProps, staticProps) {
@@ -274,20 +275,20 @@ function _typeof$1(o) {
   }, _typeof$1(o);
 }
 
-function _toPrimitive(input, hint) {
-  if (_typeof$1(input) !== "object" || input === null) return input;
-  var prim = input[Symbol.toPrimitive];
-  if (prim !== undefined) {
-    var res = prim.call(input, hint || "default");
-    if (_typeof$1(res) !== "object") return res;
+function toPrimitive(t, r) {
+  if ("object" != _typeof$1(t) || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != _typeof$1(i)) return i;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
-  return (hint === "string" ? String : Number)(input);
+  return ("string" === r ? String : Number)(t);
 }
 
-function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, "string");
-  return _typeof$1(key) === "symbol" ? key : String(key);
+function toPropertyKey(t) {
+  var i = toPrimitive(t, "string");
+  return "symbol" == _typeof$1(i) ? i : String(i);
 }
 
 function _defineProperties(target, props) {
@@ -296,7 +297,7 @@ function _defineProperties(target, props) {
     descriptor.enumerable = descriptor.enumerable || false;
     descriptor.configurable = true;
     if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
+    Object.defineProperty(target, toPropertyKey(descriptor.key), descriptor);
   }
 }
 function _createClass(Constructor, protoProps, staticProps) {
