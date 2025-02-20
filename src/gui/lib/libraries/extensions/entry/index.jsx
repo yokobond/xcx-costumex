@@ -14,7 +14,7 @@ import translations from './translations.json';
  */
 let formatMessage = messageData => messageData.defaultMessage;
 
-const version = 'v1.0.0';
+const version = 'v1.0.1';
 
 const entry = {
     get name () {
@@ -36,6 +36,7 @@ const entry = {
             id: 'costumex.entry.description'
         })} (${version})`;
     },
+    tags: ['image', 'costume'],
     featured: true,
     disabled: false,
     bluetoothRequired: false,

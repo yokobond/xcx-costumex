@@ -33,7 +33,7 @@ var translations$1 = {
 var formatMessage$1 = function formatMessage(messageData) {
   return messageData.defaultMessage;
 };
-var version = 'v1.0.0';
+var version = 'v1.0.1';
 var entry = {
   get name() {
     return formatMessage$1({
@@ -54,6 +54,7 @@ var entry = {
       id: 'costumex.entry.description'
     }), " (").concat(version, ")");
   },
+  tags: ['image', 'costume'],
   featured: true,
   disabled: false,
   bluetoothRequired: false,
@@ -259,10 +260,8 @@ var ArgumentType = {
 var argumentType = ArgumentType;
 var ArgumentType$1 = /*@__PURE__*/getDefaultExportFromCjs(argumentType);
 
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
+function _classCallCheck(a, n) {
+  if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
 }
 
 function _typeof$1(o) {
@@ -288,25 +287,19 @@ function toPrimitive(t, r) {
 
 function toPropertyKey(t) {
   var i = toPrimitive(t, "string");
-  return "symbol" == _typeof$1(i) ? i : String(i);
+  return "symbol" == _typeof$1(i) ? i : i + "";
 }
 
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, toPropertyKey(descriptor.key), descriptor);
+function _defineProperties(e, r) {
+  for (var t = 0; t < r.length; t++) {
+    var o = r[t];
+    o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, toPropertyKey(o.key), o);
   }
 }
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  Object.defineProperty(Constructor, "prototype", {
-    writable: false
-  });
-  return Constructor;
+function _createClass(e, r, t) {
+  return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
+    writable: !1
+  }), e;
 }
 
 var Color$1 = /*#__PURE__*/function () {
@@ -592,11 +585,13 @@ var Cast = /*#__PURE__*/function () {
         }
         return value;
       }
-      // Replace full-width numbers with half-width ones.
-      value = value.replace(/[０-９＋．ｅ]/g, function (s) {
-        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-      });
-      value = value.replace(/[-－﹣−‐⁃‑‒–—﹘―⎯⏤ーｰ─━]/g, '-');
+      if (typeof value === 'string') {
+        // Replace full-width numbers with half-width ones.
+        value = value.replace(/[０-９＋．ｅ]/g, function (s) {
+          return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        });
+        value = value.replace(/[-－﹣−‐⁃‑‒–—﹘―⎯⏤ーｰ─━]/g, '-');
+      }
       var n = Number(value);
       if (Number.isNaN(n)) {
         // Scratch treats NaN as 0, when needed as a number.
