@@ -55,6 +55,7 @@ jobs:
           mkdir -p ./publish
           cp -r ./repo/dist ./publish/dist
           cp -r ./repo/projects ./publish/projects
+          cp -r ./repo/README.md ./publish/README.md
       - name: publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
