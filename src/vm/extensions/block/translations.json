@@ -2,31 +2,43 @@
   "en": {
     "costumex.name": "CostumeX",
     "costumex.takeSnapshot": "snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
-    "costumex.addImageAsCostume": "add image [DATA] as costume [NAME]",
+    "costumex.insertImageAsSvgCostume": "insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]",
+    "costumex.addImageAsCostume": "add costume [NAME] with image [DATA]",
     "costumex.addImageAsCostume.defaultCostumeName": "name",
     "costumex.deleteCostume": "delete costume [COSTUME]",
     "costumex.costumesLength": "costumes length",
     "costumex.costumeNameAt": "costume name at [INDEX]",
-    "costumex.costumeData": "image data of costume [COSTUME]"
+    "costumex.costumeData": "image data of costume [COSTUME]",
+    "costumex.costumeSize": "[DIMENSION] of costume [COSTUME]",
+    "costumex.width": "width",
+    "costumex.height": "height"
   },
   "ja": {
     "costumex.name": "CostumeX",
     "costumex.takeSnapshot": "スナップショット x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
+    "costumex.insertImageAsSvgCostume": "コスチューム名[NAME]として[INDEX]番目に幅[WIDTH]高さ[HEIGHT]の画像[DATA]を挿入する",
     "costumex.addImageAsCostume": "コスチューム名[NAME]で画像[DATA]を追加する",
     "costumex.addImageAsCostume.defaultCostumeName": "名前",
     "costumex.deleteCostume": "コスチューム[COSTUME]を削除する",
     "costumex.costumesLength": "コスチュームの数",
     "costumex.costumeNameAt": "[INDEX]番目のコスチュームの名前",
-    "costumex.costumeData": "コスチューム[COSTUME]のデータ"
+    "costumex.costumeData": "コスチューム[COSTUME]のデータ",
+    "costumex.costumeSize": "コスチューム[COSTUME]の[DIMENSION]",
+    "costumex.width": "幅",
+    "costumex.height": "高さ"
   },
   "ja-Hira": {
     "costumex.name": "CostumeX",
     "costumex.takeSnapshot": "スナップショット x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
+    "costumex.insertImageAsSvgCostume": "コスチュームめい[NAME]として[INDEX]ばんめ に はば[WIDTH]たかさ[HEIGHT]の がぞう[DATA]を そうにゅう する",
     "costumex.addImageAsCostume": "コスチュームめい[NAME]で がぞう[DATA]を ついか する",
     "costumex.addImageAsCostume.defaultCostumeName": "なまえ",
     "costumex.deleteCostume": "コスチューム[COSTUME]を さくじょ する",
     "costumex.costumesLength": "コスチューム の かず",
     "costumex.costumeNameAt": "[INDEX]ばんめ の コスチューム の なまえ",
-    "costumex.costumeData": "コスチューム[COSTUME] の データ"
+    "costumex.costumeData": "コスチューム[COSTUME] の データ",
+    "costumex.costumeSize": "コスチューム[COSTUME] の [DIMENSION]",
+    "costumex.width": "はば",
+    "costumex.height": "たかさ"
   }
 }

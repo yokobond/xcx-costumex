@@ -6,7 +6,7 @@ import translations from './translations.json';
 import blockIcon from './block-icon.png';
 
 import {checkDebugMode} from './dev-util.js';
-import {addImageAsCostume, getCostumeIndexByNameOrNumber} from './costume-util';
+import {addImageAsCostume, getCostumeIndexByNameOrNumber, insertImageAsSvgCostume} from './costume-util';
 
 /**
  * Formatter which is used for translation.
@@ -123,7 +123,44 @@ class ExtensionBlocks {
             showStatusButton: false,
             blocks: [
                 {
+                    opcode: 'insertImageAsSvgCostume',
+                    blockType: BlockType.COMMAND,
+                    text: formatMessage({
+                        id: 'costumex.insertImageAsSvgCostume',
+                        default: 'insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]',
+                        description: 'CostumeX insertImageAsSvgCostume text'
+                    }),
+                    func: 'insertImageAsSvgCostume',
+                    arguments: {
+                        DATA: {
+                            type: ArgumentType.STRING,
+                            defaultValue: 'data:image/png;base64,'
+                        },
+                        NAME: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'costumex.addImageAsCostume.defaultCostumeName',
+                                default: 'costume',
+                                description: 'CostumeX addImageAsCostume defaultCostumeName text'
+                            })
+                        },
+                        INDEX: {
+                            type: ArgumentType.STRING,
+                            defaultValue: ' '
+                        },
+                        WIDTH: {
+                            type: ArgumentType.STRING,
+                            defaultValue: ' '
+                        },
+                        HEIGHT: {
+                            type: ArgumentType.STRING,
+                            defaultValue: ' '
+                        }
+                    }
+                },
+                {
                     opcode: 'addImageAsCostume',
+                    hideFromPalette: true,
                     blockType: BlockType.COMMAND,
                     text: formatMessage({
                         id: 'costumex.addImageAsCostume',
@@ -172,6 +209,26 @@ class ExtensionBlocks {
                     }),
                     func: 'costumeData',
                     arguments: {
+                        COSTUME: {
+                            type: ArgumentType.COSTUME,
+                            menu: 'costumeNamesMenu'
+                        }
+                    }
+                },
+                {
+                    opcode: 'costumeSize',
+                    blockType: BlockType.REPORTER,
+                    text: formatMessage({
+                        id: 'costumex.costumeSize',
+                        default: '[DIMENSION] of costume [COSTUME]',
+                        description: 'CostumeX costumeSize text'
+                    }),
+                    func: 'costumeSize',
+                    arguments: {
+                        DIMENSION: {
+                            type: ArgumentType.STRING,
+                            menu: 'dimensionMenu'
+                        },
                         COSTUME: {
                             type: ArgumentType.COSTUME,
                             menu: 'costumeNamesMenu'
@@ -239,6 +296,26 @@ class ExtensionBlocks {
                 costumeNamesMenu: {
                     acceptReporters: true,
                     items: 'getCostumeNamesMenu'
+                },
+                dimensionMenu: {
+                    items: [
+                        {
+                            text: formatMessage({
+                                id: 'costumex.width',
+                                default: 'width',
+                                description: 'CostumeX width text'
+                            }),
+                            value: 'width'
+                        },
+                        {
+                            text: formatMessage({
+                                id: 'costumex.height',
+                                default: 'height',
+                                description: 'CostumeX height text'
+                            }),
+                            value: 'height'
+                        }
+                    ]
                 }
             }
         };
@@ -321,6 +398,42 @@ class ExtensionBlocks {
     }
 
     /**
+     * Insert an image as a costume.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise<string>} - a Promise that resolves when the image is added then returns the data URL
+     */
+    insertImageAsSvgCostume (args, util) {
+        const target = util.target;
+        const dataURL = Cast.toString(args.DATA).trim();
+        const imageName = Cast.toString(args.NAME);
+        const runtime = this.runtime;
+        let insertIndex = Cast.toNumber(args.INDEX);
+        if (isNaN(insertIndex) || insertIndex < 1) {
+            insertIndex = 1;
+        }
+        if (insertIndex > target.getCostumes().length + 1) {
+            insertIndex = target.getCostumes().length + 1;
+        }
+        insertIndex -= 1; // Convert to 0-origin
+        let width = Cast.toNumber(args.WIDTH);
+        if (isNaN(width) || width <= 0) {
+            width = runtime.renderer.canvas.width;
+        }
+        let height = Cast.toNumber(args.HEIGHT);
+        if (isNaN(height) || height <= 0) {
+            height = runtime.renderer.canvas.height;
+        }
+
+        return insertImageAsSvgCostume(target, dataURL, width, height, runtime, imageName, insertIndex)
+            .then(costume => ` ${costume.asset.encodeDataURI()} `)
+            .catch(error => {
+                log.error(error);
+                return error.message;
+            });
+    }
+
+    /**
      * Add an image as a costume.
      * @param {object} args - the block's arguments.
      * @param {object} util - utility object provided by the runtime.
@@ -394,6 +507,22 @@ class ExtensionBlocks {
         const costumeIndex = getCostumeIndexByNameOrNumber(target, costumeName);
         if (costumeIndex === null) return '';
         return ` ${target.getCostumes()[costumeIndex].asset.encodeDataURI()} `;
+    }
+
+    costumeSize (args, util) {
+        const dimension = Cast.toString(args.DIMENSION).toLowerCase();
+        const target = util.target;
+        const costumeName = Cast.toString(args.COSTUME);
+        const costumeIndex = getCostumeIndexByNameOrNumber(target, costumeName);
+        if (costumeIndex === null) return 0;
+        const costume = target.getCostumes()[costumeIndex];
+        if (dimension === 'width') {
+            return Math.round(costume.bitmapResolution * costume.size[0]);
+        }
+        if (dimension === 'height') {
+            return Math.round(costume.bitmapResolution * costume.size[1]);
+        }
+        return 0;
     }
 }
 

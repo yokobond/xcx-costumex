@@ -286,3 +286,156 @@ export const addImageAsCostume = async function (target, dataURL, runtime, image
             return costume;
         });
 };
+
+
+/**
+ * Create SVG costume to target.
+ * @param {string} svgData - SVG data string
+ * @param {Runtime} runtime - runtime
+ * @param {string} imageName - name of the costume
+ * @returns {void}
+ */
+const createAndAddSvgCostume = function (svgData, runtime, imageName) {
+    const svgBytes = new TextEncoder().encode(svgData);
+    const asset = runtime.storage.createAsset(
+        runtime.storage.AssetType.ImageVector,
+        runtime.storage.DataFormat.SVG,
+        svgBytes,
+        null,
+        true // generate md5
+    );
+    
+    const newCostume = {
+        name: imageName,
+        dataFormat: runtime.storage.DataFormat.SVG,
+        asset: asset,
+        md5: `${asset.assetId}.svg`,
+        assetId: asset.assetId
+    };
+    
+    
+    // Create SVG skin
+    newCostume.skinId = runtime.renderer.createSVGSkin(svgData);
+    newCostume.size = runtime.renderer.getSkinSize(newCostume.skinId);
+    const rotationCenter = runtime.renderer.getSkinRotationCenter(newCostume.skinId);
+    newCostume.rotationCenterX = rotationCenter[0];
+    newCostume.rotationCenterY = rotationCenter[1];
+    newCostume.bitmapResolution = 1;
+    return newCostume;
+};
+
+
+/**
+ * Insert image as an SVG costume at the specified index.
+ * @param {Target} target - target to add costume
+ * @param {string} dataURL - image data
+ * @param {number} width - desired width for the costume (optional, defaults to stage size)
+ * @param {number} height - desired height for the costume (optional, defaults to stage size)
+ * @param {Runtime} runtime - runtime
+ * @param {string} imageName - name of the costume
+ * @param {number} insertIndex - index to insert the costume (optional, 0-based, defaults to end of the list)
+ * @returns {Promise} - a Promise that resolves when the image is added
+*/
+export const insertImageAsSvgCostume = async function (
+    target,
+    dataURL,
+    width,
+    height,
+    runtime,
+    imageName = 'costume',
+    insertIndex
+) {
+    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+    let svgData;
+    
+    // Always create SVG costume, even for bitmap images (when svg=false)
+    if (mimeString === 'image/svg+xml') {
+        // Convert base64 to raw binary data for SVG
+        let byteString;
+        if (dataURL.split(',')[0].indexOf('base64') >= 0) {
+            byteString = atob(dataURL.split(',')[1]);
+        } else {
+            byteString = decodeURI(dataURL.split(',')[1]);
+        }
+        svgData = byteString;
+    } else if (mimeString === 'image/jpeg' || mimeString === 'image/png') {
+        // Create an SVG wrapper for bitmap images
+        const image = new Image();
+        
+        await new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = () => reject(new Error('Costume load failed. Asset could not be read.'));
+            image.src = dataURL;
+        });
+
+        const originalWidth = image.naturalWidth || image.width;
+        const originalHeight = image.naturalHeight || image.height;
+
+        const defaultStageWidth = 480;
+        const defaultStageHeight = 360;
+
+        const hasCustomWidth = typeof width === 'number' && !Number.isNaN(width) && width > 0;
+        const hasCustomHeight = typeof height === 'number' && !Number.isNaN(height) && height > 0;
+        const useCustomSize = hasCustomWidth && hasCustomHeight;
+
+        let svgViewportWidth;
+        let svgViewportHeight;
+
+        if (useCustomSize) {
+            svgViewportWidth = width;
+            svgViewportHeight = height;
+        } else {
+            const stageScale = Math.min(
+                1,
+                defaultStageWidth / originalWidth,
+                defaultStageHeight / originalHeight
+            );
+            svgViewportWidth = Math.max(1, Math.round(originalWidth * stageScale));
+            svgViewportHeight = Math.max(1, Math.round(originalHeight * stageScale));
+        }
+
+        const scale = Math.min(
+            svgViewportWidth / originalWidth,
+            svgViewportHeight / originalHeight
+        );
+        const scaledWidth = originalWidth * scale;
+        const scaledHeight = originalHeight * scale;
+        const translateX = (svgViewportWidth - scaledWidth) / 2;
+        const translateY = (svgViewportHeight - scaledHeight) / 2;
+
+        const formatNumber = value => (
+            Number.isInteger(value) ? value : Number(value.toFixed(2))
+        );
+
+        const svgAttributes = [
+            'version="1.1"',
+            'xmlns="http://www.w3.org/2000/svg"',
+            'xmlns:xlink="http://www.w3.org/1999/xlink"',
+            `width="${formatNumber(svgViewportWidth)}"`,
+            `height="${formatNumber(svgViewportHeight)}"`,
+            `viewBox="0 0 ${formatNumber(svgViewportWidth)} ${formatNumber(svgViewportHeight)}"`
+        ].join(' ');
+
+        const imageTransform = [
+            `translate(${formatNumber(translateX)},${formatNumber(translateY)})`,
+            `scale(${formatNumber(scale)})`
+        ].join(' ');
+
+        svgData = `<svg ${svgAttributes}>
+  <image width="${formatNumber(originalWidth)}" height="${formatNumber(originalHeight)}" ` +
+                    `transform="${imageTransform}" xlink:href="${dataURL}"/>
+</svg>`;
+    } else {
+        throw new Error(`Unsupported image type: ${mimeString}`);
+    }
+
+    const newCostume = createAndAddSvgCostume(svgData, runtime, imageName);
+
+    const currentCostumeIndex = target.currentCostume;
+    const finalCostumeIndex = (typeof insertIndex === 'number') ? insertIndex : target.getCostumes().length;
+    target.addCostume(newCostume, finalCostumeIndex);
+    target.setCostume(currentCostumeIndex);
+    runtime.emitProjectChanged();
+
+    return newCostume;
+};
