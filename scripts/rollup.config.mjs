@@ -4,7 +4,6 @@ import fs from 'fs-extra';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
-import nodeGlobals from 'rollup-plugin-node-globals';
 import nodePolifills from 'rollup-plugin-polyfill-node';
 import importImage from '@rollup/plugin-image';
 import multi from '@rollup/plugin-multi-entry';
@@ -24,22 +23,27 @@ const moduleFile = path.resolve(outputDir, `${moduleName}.mjs`);
 
 const rollupOptions = {
     input: [entryFile, blockFile],
+    context: 'window',
     plugins: [
         multi(),
         importImage(),
-        commonjs(),
-        nodeGlobals(),
-        nodePolifills(),
+        json(),
         nodeResolve({
             browser: true, 
-            preferBuiltins: true, 
+            preferBuiltins: false, // Changed to false for browser environment
             modulePaths: [
                 path.resolve(process.cwd(), './node_modules'),
             ],
+            // Add these options to better resolve @babel/runtime
+            include: ['**'],
+            skip: [],
         }),
-        json(),
+        commonjs(),
+        nodePolifills(),
         babel({
             babelrc: false,
+            // Exclude node_modules from babel transformation except for specific packages
+            exclude: ['node_modules/**'],
             presets: [
                 ['@babel/preset-env',
                     {
@@ -59,7 +63,10 @@ const rollupOptions = {
                 '@babel/plugin-transform-react-jsx',
                 [
                     "@babel/plugin-transform-runtime",
-                    { "regenerator": true }
+                    { 
+                        "regenerator": true,
+                        "useESModules": true // This helps with ES module compatibility
+                    }
                 ]
             ],
         }),
@@ -69,6 +76,7 @@ const rollupOptions = {
         format: 'es',
         sourcemap: true,
     },
+    external: [], // Keep this empty to bundle everything
     watch: {
         clearScreen: false,
         chokidar: {
@@ -76,8 +84,6 @@ const rollupOptions = {
         },
         buildDelay: 500,
     },
-    external: [
-    ],
 }
 
 export default rollupOptions;
