@@ -63,3 +63,4 @@ jobs:
           publish_dir: ./publish
           destination_dir: ${{ inputs.publish-dir }}
           keep_files: false
+          enable_jekyll: true
