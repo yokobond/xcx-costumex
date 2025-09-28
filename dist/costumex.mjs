@@ -1324,30 +1324,28 @@ var log$1 = /*@__PURE__*/getDefaultExportFromCjs(log);
 var en = {
 	"costumex.name": "CostumeX",
 	"costumex.takeSnapshot": "snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
-	"costumex.insertImageAsSvgCostume": "insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]",
-	"costumex.addImageAsCostume": "add costume [NAME] with image [DATA]",
-	"costumex.addImageAsCostume.defaultCostumeName": "name",
+	"costumex.insertImageAsCostume": "insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]",
+	"costumex.insertImageAsCostume.defaultCostumeName": "name",
 	"costumex.deleteCostume": "delete costume [COSTUME]",
 	"costumex.costumesLength": "costumes length",
 	"costumex.costumeNameAt": "costume name at [INDEX]",
 	"costumex.costumeData": "image data of costume [COSTUME]",
 	"costumex.costumeSize": "[DIMENSION] of costume [COSTUME]",
-	"costumex.width": "width",
-	"costumex.height": "height"
+	"costumex.dimensionMenu.width": "width",
+	"costumex.dimensionMenu.height": "height"
 };
 var ja = {
 	"costumex.name": "CostumeX",
 	"costumex.takeSnapshot": "スナップショット x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
-	"costumex.insertImageAsSvgCostume": "コスチューム名[NAME]として[INDEX]番目に幅[WIDTH]高さ[HEIGHT]の画像[DATA]を挿入する",
-	"costumex.addImageAsCostume": "コスチューム名[NAME]で画像[DATA]を追加する",
-	"costumex.addImageAsCostume.defaultCostumeName": "名前",
+	"costumex.insertImageAsCostume": "コスチューム名[NAME]として[INDEX]番目に幅[WIDTH]高さ[HEIGHT]の画像[DATA]を挿入する",
+	"costumex.insertImageAsCostume.defaultCostumeName": "名前",
 	"costumex.deleteCostume": "コスチューム[COSTUME]を削除する",
 	"costumex.costumesLength": "コスチュームの数",
 	"costumex.costumeNameAt": "[INDEX]番目のコスチュームの名前",
 	"costumex.costumeData": "コスチューム[COSTUME]のデータ",
 	"costumex.costumeSize": "コスチューム[COSTUME]の[DIMENSION]",
-	"costumex.width": "幅",
-	"costumex.height": "高さ"
+	"costumex.dimensionMenu.width": "幅",
+	"costumex.dimensionMenu.height": "高さ"
 };
 var translations = {
 	en: en,
@@ -1355,16 +1353,15 @@ var translations = {
 	"ja-Hira": {
 	"costumex.name": "CostumeX",
 	"costumex.takeSnapshot": "スナップショット x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
-	"costumex.insertImageAsSvgCostume": "コスチュームめい[NAME]として[INDEX]ばんめ に はば[WIDTH]たかさ[HEIGHT]の がぞう[DATA]を そうにゅう する",
-	"costumex.addImageAsCostume": "コスチュームめい[NAME]で がぞう[DATA]を ついか する",
-	"costumex.addImageAsCostume.defaultCostumeName": "なまえ",
+	"costumex.insertImageAsCostume": "コスチュームめい[NAME]として[INDEX]ばんめ に はば[WIDTH]たかさ[HEIGHT]の がぞう[DATA]を そうにゅう する",
+	"costumex.insertImageAsCostume.defaultCostumeName": "なまえ",
 	"costumex.deleteCostume": "コスチューム[COSTUME]を さくじょ する",
 	"costumex.costumesLength": "コスチューム の かず",
 	"costumex.costumeNameAt": "[INDEX]ばんめ の コスチューム の なまえ",
 	"costumex.costumeData": "コスチューム[COSTUME] の データ",
 	"costumex.costumeSize": "コスチューム[COSTUME] の [DIMENSION]",
-	"costumex.width": "はば",
-	"costumex.height": "たかさ"
+	"costumex.dimensionMenu.width": "はば",
+	"costumex.dimensionMenu.height": "たかさ"
 }
 };
 
@@ -1833,230 +1830,6 @@ var getCostumeIndexByNameOrNumber = function getCostumeIndexByNameOrNumber(targe
   return costumeIndex;
 };
 
-// Convert base64 to raw binary data held in a dataURL.
-// @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
-/**
- * Convert dataURL to binary data.
- * @param {string} dataURL - data to convert
- * @returns {Uint8Array} - binary data
- */
-var dataURLToBinary = function dataURLToBinary(dataURL) {
-  var byteString;
-  if (dataURL.split(',')[0].indexOf('base64') >= 0) {
-    byteString = atob(dataURL.split(',')[1]);
-  } else {
-    byteString = decodeURI(dataURL.split(',')[1]);
-  }
-  var data = new Uint8Array(byteString.length);
-  for (var i = 0; i < byteString.length; i++) {
-    data[i] = byteString.charCodeAt(i);
-  }
-  return data;
-};
-
-/**
- * Load vector image and create skin for costume.
- * @param {Costume} costume - costume to load
- * @param {Runtime} runtime - runtime
- * @returns {Promise<Costume>} - a Promise that resolves when the image is loaded then returns the costume
- */
-var loadVector = function loadVector(costume, runtime) {
-  return new Promise(function (resolve) {
-    var svgString = costume.asset.decodeText();
-    costume.skinId = runtime.renderer.createSVGSkin(svgString);
-    costume.size = runtime.renderer.getSkinSize(costume.skinId);
-    var rotationCenter = runtime.renderer.getSkinRotationCenter(costume.skinId);
-    costume.rotationCenterX = rotationCenter[0];
-    costume.rotationCenterY = rotationCenter[1];
-    costume.bitmapResolution = 1;
-    resolve(costume);
-  });
-};
-
-/**
- * Load bitmap image and create skin for costume.
- * @param {Costume} costume - costume to load
- * @param {Runtime} runtime - runtime
- * @returns {Promise<Costume>} - a Promise that resolves when the image is loaded then returns the costume
- */
-var loadBitmap = function loadBitmap(costume, runtime) {
-  var asset = costume.asset;
-  return createImageBitmap(new Blob([asset.data], {
-    type: asset.assetType.contentType
-  })).then(function (imageElem) {
-    var bitmapResolution = 2;
-    var canvas = document.createElement('canvas');
-    canvas.width = imageElem.width;
-    canvas.height = imageElem.height;
-    var context = canvas.getContext('2d');
-    context.drawImage(imageElem, 0, 0);
-    // create bitmap skin
-    costume.bitmapResolution = bitmapResolution;
-    costume.skinId = runtime.renderer.createBitmapSkin(canvas, costume.bitmapResolution);
-    var renderSize = runtime.renderer.getSkinSize(costume.skinId);
-    costume.size = [renderSize[0] * costume.bitmapResolution, renderSize[1] * costume.bitmapResolution];
-    var rotationCenter = runtime.renderer.getSkinRotationCenter(costume.skinId);
-    costume.rotationCenterX = rotationCenter[0] * costume.bitmapResolution;
-    costume.rotationCenterY = rotationCenter[1] * costume.bitmapResolution;
-    return costume;
-  });
-};
-
-/**
- * Resize bitmap image.
- * @param {string} dataURL - image data
- * @param {number} width - max width of the resized image
- * @param {number} height - max height of the resized image
- * @returns {Promise<string>} - a Promise that resolves when the image is resized then returns the dataURL
- * @see https://stackoverflow.com/questions/23945494/use-html5-to-resize-an-image-before-upload
- */
-var resizeBitmap = function resizeBitmap(dataURL, width, height) {
-  var mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-  return new Promise(function (resolve, reject) {
-    var image = new Image();
-    image.onload = function () {
-      var canvas = document.createElement('canvas');
-      var scale = 1;
-      if (image.width > image.height) {
-        if (image.width > width) {
-          scale = width / image.width;
-        }
-      } else if (image.height > height) {
-        scale = height / image.height;
-      }
-      canvas.width = image.width * scale;
-      canvas.height = image.height * scale;
-      var context = canvas.getContext('2d');
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL(mimeString));
-      image.onload = null;
-      image.onerror = null;
-    };
-    image.onerror = function () {
-      reject(new Error('dataURL load failed.'));
-      image.onload = null;
-      image.onerror = null;
-    };
-    image.src = dataURL;
-  });
-};
-
-/**
- * Add image as a costume.
- * This will not update the target's current costume.
- * @param {Target} target - target to add costume
- * @param {string} dataURL - image data
- * @param {Runtime} runtime - runtime
- * @param {string} imageName - name of the costume
- * @param {VirtualMachine} vm - scratch vm
- * @returns {Promise<Costume>} - a Promise that resolves when the image is added then returns the costume
-*/
-var addImageAsCostume = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(target, dataURL, runtime) {
-    var imageName,
-      vm,
-      mimeString,
-      assetType,
-      dataFormat,
-      bitmapResolution,
-      _runtime$renderer$get,
-      _runtime$renderer$get2,
-      stageWidth,
-      stageHeight,
-      asset,
-      newCostume,
-      currentCostumeIndex,
-      loader,
-      _args = arguments;
-    return _regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) switch (_context.prev = _context.next) {
-        case 0:
-          imageName = _args.length > 3 && _args[3] !== undefined ? _args[3] : 'costume';
-          vm = _args.length > 4 ? _args[4] : undefined;
-          mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-          if (!(mimeString === 'image/svg+xml')) {
-            _context.next = 8;
-            break;
-          }
-          assetType = runtime.storage.AssetType.ImageVector;
-          dataFormat = runtime.storage.DataFormat.SVG;
-          _context.next = 19;
-          break;
-        case 8:
-          if (!(mimeString === 'image/jpeg')) {
-            _context.next = 13;
-            break;
-          }
-          assetType = runtime.storage.AssetType.ImageBitmap;
-          dataFormat = runtime.storage.DataFormat.JPG;
-          _context.next = 19;
-          break;
-        case 13:
-          if (!(mimeString === 'image/png')) {
-            _context.next = 18;
-            break;
-          }
-          assetType = runtime.storage.AssetType.ImageBitmap;
-          dataFormat = runtime.storage.DataFormat.PNG;
-          _context.next = 19;
-          break;
-        case 18:
-          return _context.abrupt("return", Promise.reject(new Error("Unsupported image type: ".concat(mimeString))));
-        case 19:
-          bitmapResolution = 2;
-          if (!(assetType === runtime.storage.AssetType.ImageBitmap)) {
-            _context.next = 25;
-            break;
-          }
-          _runtime$renderer$get = runtime.renderer.getNativeSize(), _runtime$renderer$get2 = _slicedToArray(_runtime$renderer$get, 2), stageWidth = _runtime$renderer$get2[0], stageHeight = _runtime$renderer$get2[1];
-          _context.next = 24;
-          return resizeBitmap(dataURL, stageWidth * bitmapResolution, stageHeight * bitmapResolution);
-        case 24:
-          dataURL = _context.sent;
-        case 25:
-          asset = runtime.storage.createAsset(assetType, dataFormat, dataURLToBinary(dataURL), null, true // generate md5
-          );
-          newCostume = {
-            name: imageName,
-            dataFormat: dataFormat,
-            asset: asset,
-            md5: "".concat(asset.assetId, ".").concat(dataFormat),
-            assetId: asset.assetId,
-            bitmapResolution: bitmapResolution
-          };
-          currentCostumeIndex = target.currentCostume;
-          if (DEBUG) {
-            vm = null;
-          }
-          if (!vm) {
-            _context.next = 31;
-            break;
-          }
-          return _context.abrupt("return", vm.addCostume(newCostume.md5, newCostume, target.id).then(function () {
-            target.setCostume(currentCostumeIndex);
-            vm.emitTargetsUpdate();
-            return newCostume;
-          }));
-        case 31:
-          // no vm, so add costume directly
-          loader = assetType === runtime.storage.AssetType.ImageVector ? loadVector : loadBitmap;
-          return _context.abrupt("return", loader(newCostume, runtime).then(function (costume) {
-            target.addCostume(costume);
-            target.setCostume(currentCostumeIndex);
-            runtime.emitProjectChanged();
-            return costume;
-          }));
-        case 33:
-        case "end":
-          return _context.stop();
-      }
-    }, _callee);
-  }));
-  return function addImageAsCostume(_x, _x2, _x3) {
-    return _ref.apply(this, arguments);
-  };
-}();
-
 /**
  * Create SVG costume to target.
  * @param {string} svgData - SVG data string
@@ -2088,17 +1861,17 @@ var createAndAddSvgCostume = function createAndAddSvgCostume(svgData, runtime, i
 
 /**
  * Insert image as an SVG costume at the specified index.
+ * @param {Runtime} runtime - runtime
  * @param {Target} target - target to add costume
  * @param {string} dataURL - image data
  * @param {number} width - desired width for the costume (optional, defaults to stage size)
  * @param {number} height - desired height for the costume (optional, defaults to stage size)
- * @param {Runtime} runtime - runtime
  * @param {string} imageName - name of the costume
  * @param {number} insertIndex - index to insert the costume (optional, 0-based, defaults to end of the list)
  * @returns {Promise} - a Promise that resolves when the image is added
 */
 var insertImageAsSvgCostume = /*#__PURE__*/function () {
-  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(target, dataURL, width, height, runtime) {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2(runtime, target, dataURL, width, height) {
     var imageName,
       insertIndex,
       mimeString,
@@ -2283,25 +2056,25 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         blockIconURI: img,
         showStatusButton: false,
         blocks: [{
-          opcode: 'insertImageAsSvgCostume',
+          opcode: 'insertImageAsCostume',
           blockType: BlockType$1.COMMAND,
           text: formatMessage({
-            id: 'costumex.insertImageAsSvgCostume',
+            id: 'costumex.insertImageAsCostume',
             default: 'insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]',
-            description: 'CostumeX insertImageAsSvgCostume text'
+            description: 'CostumeX insertImageAsCostume text'
           }),
-          func: 'insertImageAsSvgCostume',
+          func: 'insertImageAsCostume',
           arguments: {
             DATA: {
               type: ArgumentType$1.STRING,
-              defaultValue: 'data:image/png;base64,'
+              defaultValue: 'data:image/png;base64,XXX'
             },
             NAME: {
               type: ArgumentType$1.STRING,
               defaultValue: formatMessage({
-                id: 'costumex.addImageAsCostume.defaultCostumeName',
+                id: 'costumex.insertImageAsCostume.defaultCostumeName',
                 default: 'costume',
-                description: 'CostumeX addImageAsCostume defaultCostumeName text'
+                description: 'CostumeX insertImageAsCostume defaultCostumeName text'
               })
             },
             INDEX: {
@@ -2452,14 +2225,14 @@ var ExtensionBlocks = /*#__PURE__*/function () {
           dimensionMenu: {
             items: [{
               text: formatMessage({
-                id: 'costumex.width',
+                id: 'costumex.dimensionMenu.width',
                 default: 'width',
                 description: 'CostumeX width text'
               }),
               value: 'width'
             }, {
               text: formatMessage({
-                id: 'costumex.height',
+                id: 'costumex.dimensionMenu.height',
                 default: 'height',
                 description: 'CostumeX height text'
               }),
@@ -2550,8 +2323,8 @@ var ExtensionBlocks = /*#__PURE__*/function () {
      * @returns {Promise<string>} - a Promise that resolves when the image is added then returns the data URL
      */
   }, {
-    key: "insertImageAsSvgCostume",
-    value: function insertImageAsSvgCostume$1(args, util) {
+    key: "insertImageAsCostume",
+    value: function insertImageAsCostume(args, util) {
       var target = util.target;
       var dataURL = Cast$1.toString(args.DATA).trim();
       var imageName = Cast$1.toString(args.NAME);
@@ -2572,7 +2345,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
       if (isNaN(height) || height <= 0) {
         height = runtime.renderer.canvas.height;
       }
-      return insertImageAsSvgCostume(target, dataURL, width, height, runtime, imageName, insertIndex).then(function (costume) {
+      return insertImageAsSvgCostume(runtime, target, dataURL, width, height, imageName, insertIndex).then(function (costume) {
         return " ".concat(costume.asset.encodeDataURI(), " ");
       }).catch(function (error) {
         log$1.error(error);
@@ -2585,20 +2358,12 @@ var ExtensionBlocks = /*#__PURE__*/function () {
      * @param {object} args - the block's arguments.
      * @param {object} util - utility object provided by the runtime.
      * @returns {Promise<string>} - a Promise that resolves when the image is added then returns the data URL
+     * @deprecated Use 'insertImageAsCostume' instead.
      */
   }, {
     key: "addImageAsCostume",
-    value: function addImageAsCostume$1(args, util) {
-      var target = util.target;
-      var dataURL = Cast$1.toString(args.DATA).trim();
-      var imageName = Cast$1.toString(args.NAME);
-      var runtime = this.runtime;
-      return addImageAsCostume(target, dataURL, runtime, imageName, runtime.vm).then(function (costume) {
-        return " ".concat(costume.asset.encodeDataURI(), " ");
-      }).catch(function (error) {
-        log$1.error(error);
-        return error.message;
-      });
+    value: function addImageAsCostume(args, util) {
+      return this.insertImageAsCostume(args, util);
     }
 
     /**
