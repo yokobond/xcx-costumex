@@ -327,21 +327,21 @@ const createAndAddSvgCostume = function (svgData, runtime, imageName) {
 
 /**
  * Insert image as an SVG costume at the specified index.
+ * @param {Runtime} runtime - runtime
  * @param {Target} target - target to add costume
  * @param {string} dataURL - image data
  * @param {number} width - desired width for the costume (optional, defaults to stage size)
  * @param {number} height - desired height for the costume (optional, defaults to stage size)
- * @param {Runtime} runtime - runtime
  * @param {string} imageName - name of the costume
  * @param {number} insertIndex - index to insert the costume (optional, 0-based, defaults to end of the list)
  * @returns {Promise} - a Promise that resolves when the image is added
 */
 export const insertImageAsSvgCostume = async function (
+    runtime,
     target,
     dataURL,
     width,
     height,
-    runtime,
     imageName = 'costume',
     insertIndex
 ) {

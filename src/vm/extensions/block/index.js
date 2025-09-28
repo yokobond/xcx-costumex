@@ -6,7 +6,7 @@ import translations from './translations.json';
 import blockIcon from './block-icon.png';
 
 import {checkDebugMode} from './dev-util.js';
-import {addImageAsCostume, getCostumeIndexByNameOrNumber, insertImageAsSvgCostume} from './costume-util';
+import {insertImageAsSvgCostume, getCostumeIndexByNameOrNumber} from './costume-util';
 
 /**
  * Formatter which is used for translation.
@@ -123,25 +123,25 @@ class ExtensionBlocks {
             showStatusButton: false,
             blocks: [
                 {
-                    opcode: 'insertImageAsSvgCostume',
+                    opcode: 'insertImageAsCostume',
                     blockType: BlockType.COMMAND,
                     text: formatMessage({
-                        id: 'costumex.insertImageAsSvgCostume',
+                        id: 'costumex.insertImageAsCostume',
                         default: 'insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]',
-                        description: 'CostumeX insertImageAsSvgCostume text'
+                        description: 'CostumeX insertImageAsCostume text'
                     }),
-                    func: 'insertImageAsSvgCostume',
+                    func: 'insertImageAsCostume',
                     arguments: {
                         DATA: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'data:image/png;base64,'
+                            defaultValue: 'data:image/png;base64,XXX'
                         },
                         NAME: {
                             type: ArgumentType.STRING,
                             defaultValue: formatMessage({
-                                id: 'costumex.addImageAsCostume.defaultCostumeName',
+                                id: 'costumex.insertImageAsCostume.defaultCostumeName',
                                 default: 'costume',
-                                description: 'CostumeX addImageAsCostume defaultCostumeName text'
+                                description: 'CostumeX insertImageAsCostume defaultCostumeName text'
                             })
                         },
                         INDEX: {
@@ -301,7 +301,7 @@ class ExtensionBlocks {
                     items: [
                         {
                             text: formatMessage({
-                                id: 'costumex.width',
+                                id: 'costumex.dimensionMenu.width',
                                 default: 'width',
                                 description: 'CostumeX width text'
                             }),
@@ -309,7 +309,7 @@ class ExtensionBlocks {
                         },
                         {
                             text: formatMessage({
-                                id: 'costumex.height',
+                                id: 'costumex.dimensionMenu.height',
                                 default: 'height',
                                 description: 'CostumeX height text'
                             }),
@@ -403,7 +403,7 @@ class ExtensionBlocks {
      * @param {object} util - utility object provided by the runtime.
      * @returns {Promise<string>} - a Promise that resolves when the image is added then returns the data URL
      */
-    insertImageAsSvgCostume (args, util) {
+    insertImageAsCostume (args, util) {
         const target = util.target;
         const dataURL = Cast.toString(args.DATA).trim();
         const imageName = Cast.toString(args.NAME);
@@ -425,7 +425,7 @@ class ExtensionBlocks {
             height = runtime.renderer.canvas.height;
         }
 
-        return insertImageAsSvgCostume(target, dataURL, width, height, runtime, imageName, insertIndex)
+        return insertImageAsSvgCostume(runtime, target, dataURL, width, height, imageName, insertIndex)
             .then(costume => ` ${costume.asset.encodeDataURI()} `)
             .catch(error => {
                 log.error(error);
@@ -438,18 +438,10 @@ class ExtensionBlocks {
      * @param {object} args - the block's arguments.
      * @param {object} util - utility object provided by the runtime.
      * @returns {Promise<string>} - a Promise that resolves when the image is added then returns the data URL
+     * @deprecated Use 'insertImageAsCostume' instead.
      */
     addImageAsCostume (args, util) {
-        const target = util.target;
-        const dataURL = Cast.toString(args.DATA).trim();
-        const imageName = Cast.toString(args.NAME);
-        const runtime = this.runtime;
-        return addImageAsCostume(target, dataURL, runtime, imageName, runtime.vm)
-            .then(costume => ` ${costume.asset.encodeDataURI()} `)
-            .catch(error => {
-                log.error(error);
-                return error.message;
-            });
+        return this.insertImageAsCostume(args, util);
     }
 
     /**
