@@ -314,6 +314,20 @@ class ExtensionBlocks {
                                 description: 'CostumeX height text'
                             }),
                             value: 'height'
+                        },
+                        {
+                            text: formatMessage({
+                                id: 'costumex.dimensionMenu.centerX',
+                                default: 'center x'
+                            }),
+                            value: 'centerX'
+                        },
+                        {
+                            text: formatMessage({
+                                id: 'costumex.dimensionMenu.centerY',
+                                default: 'center y'
+                            }),
+                            value: 'centerY'
                         }
                     ]
                 }
@@ -516,6 +530,14 @@ class ExtensionBlocks {
         }
         if (dimension === 'height') {
             return Math.round(resolution * costume.size[1] * spriteScale);
+        }
+        if (dimension === 'centerx') {
+            const centerX = (costume.size[0] / 2) - costume.rotationCenterX;
+            return Math.round(resolution * centerX * spriteScale);
+        }
+        if (dimension === 'centery') {
+            const centerY = costume.rotationCenterY - (costume.size[1] / 2);
+            return Math.round(resolution * centerY * spriteScale);
         }
         return 0;
     }
