@@ -1332,7 +1332,9 @@ var en = {
 	"costumex.costumeData": "image data of costume [COSTUME]",
 	"costumex.costumeSize": "[DIMENSION] of costume [COSTUME]",
 	"costumex.dimensionMenu.width": "width",
-	"costumex.dimensionMenu.height": "height"
+	"costumex.dimensionMenu.height": "height",
+	"costumex.dimensionMenu.centerX": "center x",
+	"costumex.dimensionMenu.centerY": "center y"
 };
 var ja = {
 	"costumex.name": "CostumeX",
@@ -1345,7 +1347,9 @@ var ja = {
 	"costumex.costumeData": "コスチューム[COSTUME]のデータ",
 	"costumex.costumeSize": "コスチューム[COSTUME]の[DIMENSION]",
 	"costumex.dimensionMenu.width": "幅",
-	"costumex.dimensionMenu.height": "高さ"
+	"costumex.dimensionMenu.height": "高さ",
+	"costumex.dimensionMenu.centerX": "中心のX",
+	"costumex.dimensionMenu.centerY": "中心のY"
 };
 var translations = {
 	en: en,
@@ -1361,7 +1365,9 @@ var translations = {
 	"costumex.costumeData": "コスチューム[COSTUME] の データ",
 	"costumex.costumeSize": "コスチューム[COSTUME] の [DIMENSION]",
 	"costumex.dimensionMenu.width": "はば",
-	"costumex.dimensionMenu.height": "たかさ"
+	"costumex.dimensionMenu.height": "たかさ",
+	"costumex.dimensionMenu.centerX": "ちゅうしん の X",
+	"costumex.dimensionMenu.centerY": "ちゅうしん の Y"
 }
 };
 
@@ -2237,6 +2243,18 @@ var ExtensionBlocks = /*#__PURE__*/function () {
                 description: 'CostumeX height text'
               }),
               value: 'height'
+            }, {
+              text: formatMessage({
+                id: 'costumex.dimensionMenu.centerX',
+                default: 'center x'
+              }),
+              value: 'centerX'
+            }, {
+              text: formatMessage({
+                id: 'costumex.dimensionMenu.centerY',
+                default: 'center y'
+              }),
+              value: 'centerY'
             }]
           }
         }
@@ -2439,11 +2457,22 @@ var ExtensionBlocks = /*#__PURE__*/function () {
       var costumeIndex = getCostumeIndexByNameOrNumber(target, costumeName);
       if (costumeIndex === null) return 0;
       var costume = target.getCostumes()[costumeIndex];
+      // Get sprite size (scale factor) as a percentage (e.g., 100 means 100%)
+      var spriteScale = target.size / 100;
+      var resolution = costume.bitmapResolution;
       if (dimension === 'width') {
-        return Math.round(costume.bitmapResolution * costume.size[0]);
+        return Math.round(resolution * costume.size[0] * spriteScale);
       }
       if (dimension === 'height') {
-        return Math.round(costume.bitmapResolution * costume.size[1]);
+        return Math.round(resolution * costume.size[1] * spriteScale);
+      }
+      if (dimension === 'centerx') {
+        var centerX = costume.size[0] / 2 - costume.rotationCenterX;
+        return Math.round(resolution * centerX * spriteScale);
+      }
+      if (dimension === 'centery') {
+        var centerY = costume.rotationCenterY - costume.size[1] / 2;
+        return Math.round(resolution * centerY * spriteScale);
       }
       return 0;
     }
