@@ -508,11 +508,14 @@ class ExtensionBlocks {
         const costumeIndex = getCostumeIndexByNameOrNumber(target, costumeName);
         if (costumeIndex === null) return 0;
         const costume = target.getCostumes()[costumeIndex];
+        // Get sprite size (scale factor) as a percentage (e.g., 100 means 100%)
+        const spriteScale = target.size / 100;
+        const resolution = costume.bitmapResolution;
         if (dimension === 'width') {
-            return Math.round(costume.bitmapResolution * costume.size[0]);
+            return Math.round(resolution * costume.size[0] * spriteScale);
         }
         if (dimension === 'height') {
-            return Math.round(costume.bitmapResolution * costume.size[1]);
+            return Math.round(resolution * costume.size[1] * spriteScale);
         }
         return 0;
     }
