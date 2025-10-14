@@ -1323,7 +1323,7 @@ var log$1 = /*@__PURE__*/getDefaultExportFromCjs(log);
 
 var en = {
 	"costumex.name": "CostumeX",
-	"costumex.takeSnapshot": "snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
+	"costumex.takeSnapshot": "snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
 	"costumex.insertImageAsCostume": "insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]",
 	"costumex.insertImageAsCostume.defaultCostumeName": "name",
 	"costumex.deleteCostume": "delete costume [COSTUME]",
@@ -1338,7 +1338,7 @@ var en = {
 };
 var ja = {
 	"costumex.name": "CostumeX",
-	"costumex.takeSnapshot": "スナップショット x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
+	"costumex.takeSnapshot": "スナップショット 中心 x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
 	"costumex.insertImageAsCostume": "コスチューム名[NAME]として[INDEX]番目に幅[WIDTH]高さ[HEIGHT]の画像[DATA]を挿入する",
 	"costumex.insertImageAsCostume.defaultCostumeName": "名前",
 	"costumex.deleteCostume": "コスチューム[COSTUME]を削除する",
@@ -1356,7 +1356,7 @@ var translations = {
 	ja: ja,
 	"ja-Hira": {
 	"costumex.name": "CostumeX",
-	"costumex.takeSnapshot": "スナップショット x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
+	"costumex.takeSnapshot": "スナップショット ちゅうしん x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
 	"costumex.insertImageAsCostume": "コスチュームめい[NAME]として[INDEX]ばんめ に はば[WIDTH]たかさ[HEIGHT]の がぞう[DATA]を そうにゅう する",
 	"costumex.insertImageAsCostume.defaultCostumeName": "なまえ",
 	"costumex.deleteCostume": "コスチューム[COSTUME]を さくじょ する",
@@ -2175,7 +2175,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
           blockAllThreads: false,
           text: formatMessage({
             id: 'costumex.takeSnapshot',
-            default: 'snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+            default: 'snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
             description: 'costumex takeSnapshot text'
           }),
           func: 'takeSnapshot',
@@ -2288,8 +2288,8 @@ var ExtensionBlocks = /*#__PURE__*/function () {
     key: "takeSnapshot",
     value: function takeSnapshot(args, util) {
       var _this = this;
-      var x = Cast$1.toNumber(args.X);
-      var y = Cast$1.toNumber(args.Y);
+      var centerX = Cast$1.toNumber(args.X);
+      var centerY = Cast$1.toNumber(args.Y);
       var width = Cast$1.toNumber(args.WIDTH);
       var height = Cast$1.toNumber(args.HEIGHT);
       var runtime = util.runtime;
@@ -2326,7 +2326,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         canvas.width = width / stageWidth * outputWidth;
         canvas.height = height / stageHeight * outputHeight;
         var context = canvas.getContext('2d');
-        context.drawImage(imageElem, (stageWidth / 2 + x - width / 2) * stepPixelRatioWidth, (stageHeight / 2 - (y + height / 2)) * stepPixelRatioHeight, width * stepPixelRatioWidth, height * stepPixelRatioHeight, 0, 0, canvas.width, canvas.height);
+        context.drawImage(imageElem, (stageWidth / 2 + centerX - width / 2) * stepPixelRatioWidth, (stageHeight / 2 - (centerY + height / 2)) * stepPixelRatioHeight, width * stepPixelRatioWidth, height * stepPixelRatioHeight, 0, 0, canvas.width, canvas.height);
         return " ".concat(canvas.toDataURL(), " ");
       }).catch(function (error) {
         log$1.error(error);
