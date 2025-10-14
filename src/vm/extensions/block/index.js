@@ -241,7 +241,7 @@ class ExtensionBlocks {
                     blockAllThreads: false,
                     text: formatMessage({
                         id: 'costumex.takeSnapshot',
-                        default: 'snapshot x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+                        default: 'snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
                         description: 'costumex takeSnapshot text'
                     }),
                     func: 'takeSnapshot',
@@ -358,8 +358,8 @@ class ExtensionBlocks {
      * @returns {Promise<string>} - a Promise that resolves snapshot data URL
      */
     takeSnapshot (args, util) {
-        const x = Cast.toNumber(args.X);
-        const y = Cast.toNumber(args.Y);
+        const centerX = Cast.toNumber(args.X);
+        const centerY = Cast.toNumber(args.Y);
         const width = Cast.toNumber(args.WIDTH);
         const height = Cast.toNumber(args.HEIGHT);
         const runtime = util.runtime;
@@ -395,8 +395,8 @@ class ExtensionBlocks {
                 const context = canvas.getContext('2d');
                 context.drawImage(
                     imageElem,
-                    ((stageWidth / 2) + x - (width / 2)) * stepPixelRatioWidth,
-                    ((stageHeight / 2) - (y + (height / 2))) * stepPixelRatioHeight,
+                    ((stageWidth / 2) + centerX - (width / 2)) * stepPixelRatioWidth,
+                    ((stageHeight / 2) - (centerY + (height / 2))) * stepPixelRatioHeight,
                     width * stepPixelRatioWidth,
                     height * stepPixelRatioHeight,
                     0,
