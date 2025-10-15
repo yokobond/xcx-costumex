@@ -1,8 +1,15 @@
 # CostumeX
-An example extension for [Xcratch](https://xcratch.github.io/)
+Costume enhancement extension for [Xcratch](https://xcratch.github.io/)
 
-This extension add extra blocks to manipulate costumes of a sprite in Xcratch.
-By using this extension, you have a block to add a costume from a data URL. You can also take a snapshot of the stage and get data URL of that image. 
+This extension adds extra blocks to manipulate costumes of a sprite in Xcratch. With this extension, you can:
+- Insert costumes from data URLs with custom position and size
+- Take snapshots of the stage at specific coordinates and dimensions
+- Capture video frames from the camera
+- Get costume data as data URLs
+- Query costume dimensions (width, height, center position)
+- Flip costumes horizontally or vertically
+- Delete costumes
+- Get costume names and count 
 
 
 ## ✨ What You Can Do With This Extension
@@ -12,6 +19,24 @@ Play [Example Project](https://xcratch.github.io/editor/#https://yokobond.github
 This project takes snapshots of the stage and saves them as costumes of a sprite. You can change the interval of taking snapshots and the number of costumes to keep. You can also change the size and position of the snapshots.
 
 <iframe src="https://xcratch.github.io/editor/player#https://yokobond.github.io/xcx-costumex/projects/example.sb3" width="540px" height="460px"></iframe>
+
+
+## 📦 Blocks
+
+### Costume Management
+- **insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]** - Insert a costume from a data URL at a specific index with custom dimensions
+- **flip costume [COSTUME] [DIRECTION]** - Flip a costume horizontally (left-right) or vertically (up-down)
+- **delete costume [COSTUME]** - Delete a specific costume
+
+### Image Capture
+- **snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]** - Take a snapshot of the stage at specified coordinates and dimensions, returns data URL
+- **capture video center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]** - Capture a video frame from the camera at specified coordinates and dimensions, returns data URL
+
+### Costume Information
+- **image data of costume [COSTUME]** - Get the data URL of a costume
+- **[DIMENSION] of costume [COSTUME]** - Get width, height, center x, or center y of a costume (scaled by sprite size)
+- **costumes length** - Get the total number of costumes
+- **costume name at [INDEX]** - Get the name of a costume at a specific index (1-based)
 
 
 ## How to Use in Xcratch

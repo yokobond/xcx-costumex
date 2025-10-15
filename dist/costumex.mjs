@@ -1324,6 +1324,7 @@ var log$1 = /*@__PURE__*/getDefaultExportFromCjs(log);
 var en = {
 	"costumex.name": "CostumeX",
 	"costumex.takeSnapshot": "snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
+	"costumex.captureVideoFrame": "capture video center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]",
 	"costumex.insertImageAsCostume": "insert costume [NAME] at [INDEX] width [WIDTH] height [HEIGHT] with image [DATA]",
 	"costumex.insertImageAsCostume.defaultCostumeName": "name",
 	"costumex.deleteCostume": "delete costume [COSTUME]",
@@ -1334,11 +1335,15 @@ var en = {
 	"costumex.dimensionMenu.width": "width",
 	"costumex.dimensionMenu.height": "height",
 	"costumex.dimensionMenu.centerX": "center x",
-	"costumex.dimensionMenu.centerY": "center y"
+	"costumex.dimensionMenu.centerY": "center y",
+	"costumex.flipCostume": "flip costume [COSTUME] [DIRECTION]",
+	"costumex.flipDirectionMenu.horizontal": "left-right",
+	"costumex.flipDirectionMenu.vertical": "up-down"
 };
 var ja = {
 	"costumex.name": "CostumeX",
 	"costumex.takeSnapshot": "スナップショット 中心 x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
+	"costumex.captureVideoFrame": "ビデオキャプチャ 中心 x:[X] y:[Y] 幅:[WIDTH] 高さ:[HEIGHT]",
 	"costumex.insertImageAsCostume": "コスチューム名[NAME]として[INDEX]番目に幅[WIDTH]高さ[HEIGHT]の画像[DATA]を挿入する",
 	"costumex.insertImageAsCostume.defaultCostumeName": "名前",
 	"costumex.deleteCostume": "コスチューム[COSTUME]を削除する",
@@ -1349,7 +1354,10 @@ var ja = {
 	"costumex.dimensionMenu.width": "幅",
 	"costumex.dimensionMenu.height": "高さ",
 	"costumex.dimensionMenu.centerX": "中心のX",
-	"costumex.dimensionMenu.centerY": "中心のY"
+	"costumex.dimensionMenu.centerY": "中心のY",
+	"costumex.flipCostume": "コスチューム[COSTUME]を[DIRECTION]反転する",
+	"costumex.flipDirectionMenu.horizontal": "左右",
+	"costumex.flipDirectionMenu.vertical": "上下"
 };
 var translations = {
 	en: en,
@@ -1357,6 +1365,7 @@ var translations = {
 	"ja-Hira": {
 	"costumex.name": "CostumeX",
 	"costumex.takeSnapshot": "スナップショット ちゅうしん x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
+	"costumex.captureVideoFrame": "ビデオキャプチャ ちゅうしん x:[X] y:[Y] はば:[WIDTH] たかさ:[HEIGHT]",
 	"costumex.insertImageAsCostume": "コスチュームめい[NAME]として[INDEX]ばんめ に はば[WIDTH]たかさ[HEIGHT]の がぞう[DATA]を そうにゅう する",
 	"costumex.insertImageAsCostume.defaultCostumeName": "なまえ",
 	"costumex.deleteCostume": "コスチューム[COSTUME]を さくじょ する",
@@ -1367,7 +1376,10 @@ var translations = {
 	"costumex.dimensionMenu.width": "はば",
 	"costumex.dimensionMenu.height": "たかさ",
 	"costumex.dimensionMenu.centerX": "ちゅうしん の X",
-	"costumex.dimensionMenu.centerY": "ちゅうしん の Y"
+	"costumex.dimensionMenu.centerY": "ちゅうしん の Y",
+	"costumex.flipCostume": "コスチューム[COSTUME]を[DIRECTION]はんてん する",
+	"costumex.flipDirectionMenu.horizontal": "さゆう",
+	"costumex.flipDirectionMenu.vertical": "じょうげ"
 }
 };
 
@@ -1836,6 +1848,27 @@ var getCostumeIndexByNameOrNumber = function getCostumeIndexByNameOrNumber(targe
   return costumeIndex;
 };
 
+// Convert base64 to raw binary data held in a dataURL.
+// @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+/**
+ * Convert dataURL to binary data.
+ * @param {string} dataURL - data to convert
+ * @returns {Uint8Array} - binary data
+ */
+var dataURLToBinary = function dataURLToBinary(dataURL) {
+  var byteString;
+  if (dataURL.split(',')[0].indexOf('base64') >= 0) {
+    byteString = atob(dataURL.split(',')[1]);
+  } else {
+    byteString = decodeURI(dataURL.split(',')[1]);
+  }
+  var data = new Uint8Array(byteString.length);
+  for (var i = 0; i < byteString.length; i++) {
+    data[i] = byteString.charCodeAt(i);
+  }
+  return data;
+};
+
 /**
  * Create SVG costume to target.
  * @param {string} svgData - SVG data string
@@ -1992,6 +2025,167 @@ var insertImageAsSvgCostume = /*#__PURE__*/function () {
 }();
 
 /**
+ * Flip a costume horizontally or vertically.
+ * @param {Runtime} runtime - runtime
+ * @param {Target} target - target to flip costume
+ * @param {string} costumeName - name or number of the costume to flip
+ * @param {string} direction - 'horizontal' or 'vertical'
+ * @returns {Promise<Costume>} - a Promise that resolves when the costume is flipped
+ */
+var flipCostume = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3(runtime, target, costumeName, direction) {
+    var costumeIndex, costume, asset, dataFormat, svgString, parser, svgDoc, svgElement, width, height, g, flippedSvgString, svgBytes, newAsset, rotationCenter, drawable, blob, imageElement, canvas, ctx, flippedDataURL, binaryData, _newAsset, newBlob, imageBitmap, tempCanvas, tempCtx, renderSize, _rotationCenter, _drawable;
+    return _regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          costumeIndex = getCostumeIndexByNameOrNumber(target, costumeName);
+          if (!(costumeIndex === null)) {
+            _context3.next = 3;
+            break;
+          }
+          throw new Error('Costume not found');
+        case 3:
+          costume = target.getCostumes()[costumeIndex];
+          asset = costume.asset;
+          dataFormat = costume.dataFormat; // Check if it's SVG or bitmap
+          if (!(dataFormat === runtime.storage.DataFormat.SVG)) {
+            _context3.next = 32;
+            break;
+          }
+          // Handle SVG flip
+          svgString = asset.decodeText();
+          parser = new DOMParser();
+          svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+          svgElement = svgDoc.documentElement; // Get current dimensions
+          width = parseFloat(svgElement.getAttribute('width')) || 100;
+          height = parseFloat(svgElement.getAttribute('height')) || 100; // Create a transform group to flip the content
+          g = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+          if (direction === 'horizontal') {
+            // Flip horizontally: scale(-1, 1) and translate
+            g.setAttribute('transform', "scale(-1, 1) translate(".concat(-width, ", 0)"));
+          } else if (direction === 'vertical') {
+            // Flip vertically: scale(1, -1) and translate
+            g.setAttribute('transform', "scale(1, -1) translate(0, ".concat(-height, ")"));
+          }
+
+          // Move all children into the transform group
+          while (svgElement.firstChild) {
+            g.appendChild(svgElement.firstChild);
+          }
+          svgElement.appendChild(g);
+          flippedSvgString = new XMLSerializer().serializeToString(svgDoc);
+          svgBytes = new TextEncoder().encode(flippedSvgString); // Create new asset
+          newAsset = runtime.storage.createAsset(runtime.storage.AssetType.ImageVector, runtime.storage.DataFormat.SVG, svgBytes, null, true); // Update costume with new asset
+          costume.asset = newAsset;
+          costume.md5 = "".concat(newAsset.assetId, ".svg");
+          costume.assetId = newAsset.assetId;
+
+          // Reload the skin
+          if (costume.skinId) {
+            runtime.renderer.destroySkin(costume.skinId);
+          }
+          costume.skinId = runtime.renderer.createSVGSkin(flippedSvgString);
+          costume.size = runtime.renderer.getSkinSize(costume.skinId);
+          rotationCenter = runtime.renderer.getSkinRotationCenter(costume.skinId);
+          costume.rotationCenterX = rotationCenter[0];
+          costume.rotationCenterY = rotationCenter[1];
+
+          // Update the drawable if this is the current costume
+          if (target.currentCostume === costumeIndex) {
+            target.setCostume(costumeIndex);
+            // Force update the drawable
+            drawable = runtime.renderer._allDrawables[target.drawableID];
+            if (drawable) {
+              drawable.updateSkin(costume.skinId);
+              runtime.requestRedraw();
+            }
+          }
+          _context3.next = 66;
+          break;
+        case 32:
+          // Handle bitmap flip
+          blob = new Blob([asset.data], {
+            type: asset.assetType.contentType
+          });
+          imageElement = new Image();
+          imageElement.src = URL.createObjectURL(blob);
+          _context3.next = 37;
+          return new Promise(function (resolve, reject) {
+            imageElement.onload = resolve;
+            imageElement.onerror = function () {
+              return reject(new Error('Image load failed'));
+            };
+          });
+        case 37:
+          canvas = document.createElement('canvas');
+          canvas.width = imageElement.width;
+          canvas.height = imageElement.height;
+          ctx = canvas.getContext('2d'); // Flip the canvas
+          if (direction === 'horizontal') {
+            ctx.scale(-1, 1);
+            ctx.drawImage(imageElement, -canvas.width, 0);
+          } else if (direction === 'vertical') {
+            ctx.scale(1, -1);
+            ctx.drawImage(imageElement, 0, -canvas.height);
+          }
+          URL.revokeObjectURL(imageElement.src);
+
+          // Convert canvas to data URL
+          flippedDataURL = canvas.toDataURL("image/".concat(dataFormat));
+          binaryData = dataURLToBinary(flippedDataURL); // Create new asset
+          _newAsset = runtime.storage.createAsset(runtime.storage.AssetType.ImageBitmap, dataFormat, binaryData, null, true); // Update costume with new asset
+          costume.asset = _newAsset;
+          costume.md5 = "".concat(_newAsset.assetId, ".").concat(dataFormat);
+          costume.assetId = _newAsset.assetId;
+
+          // Reload the skin
+          if (costume.skinId) {
+            runtime.renderer.destroySkin(costume.skinId);
+          }
+          newBlob = new Blob([_newAsset.data], {
+            type: _newAsset.assetType.contentType
+          });
+          _context3.next = 53;
+          return createImageBitmap(newBlob);
+        case 53:
+          imageBitmap = _context3.sent;
+          tempCanvas = document.createElement('canvas');
+          tempCanvas.width = imageBitmap.width;
+          tempCanvas.height = imageBitmap.height;
+          tempCtx = tempCanvas.getContext('2d');
+          tempCtx.drawImage(imageBitmap, 0, 0);
+          costume.skinId = runtime.renderer.createBitmapSkin(tempCanvas, costume.bitmapResolution);
+          renderSize = runtime.renderer.getSkinSize(costume.skinId);
+          costume.size = [renderSize[0] * costume.bitmapResolution, renderSize[1] * costume.bitmapResolution];
+          _rotationCenter = runtime.renderer.getSkinRotationCenter(costume.skinId);
+          costume.rotationCenterX = _rotationCenter[0] * costume.bitmapResolution;
+          costume.rotationCenterY = _rotationCenter[1] * costume.bitmapResolution;
+
+          // Update the drawable if this is the current costume
+          if (target.currentCostume === costumeIndex) {
+            target.setCostume(costumeIndex);
+            // Force update the drawable
+            _drawable = runtime.renderer._allDrawables[target.drawableID];
+            if (_drawable) {
+              _drawable.updateSkin(costume.skinId);
+              runtime.requestRedraw();
+            }
+          }
+        case 66:
+          runtime.emitProjectChanged();
+          return _context3.abrupt("return", costume);
+        case 68:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3);
+  }));
+  return function flipCostume(_x9, _x10, _x11, _x12) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+/**
  * Formatter which is used for translation.
  * This will be replaced which is used in the runtime.
  * @param {object} messageData - format-message object
@@ -2073,7 +2267,7 @@ var ExtensionBlocks = /*#__PURE__*/function () {
           arguments: {
             DATA: {
               type: ArgumentType$1.STRING,
-              defaultValue: 'data:image/png;base64,XXX'
+              defaultValue: 'data:image/png;base64,AAA'
             },
             NAME: {
               type: ArgumentType$1.STRING,
@@ -2121,6 +2315,25 @@ var ExtensionBlocks = /*#__PURE__*/function () {
             }
           }
         }, {
+          opcode: 'flipCostume',
+          blockType: BlockType$1.COMMAND,
+          text: formatMessage({
+            id: 'costumex.flipCostume',
+            default: 'flip costume [COSTUME] [DIRECTION]',
+            description: 'CostumeX flipCostume text'
+          }),
+          func: 'flipCostumeBlock',
+          arguments: {
+            COSTUME: {
+              type: ArgumentType$1.COSTUME,
+              menu: 'costumeNamesMenu'
+            },
+            DIRECTION: {
+              type: ArgumentType$1.STRING,
+              menu: 'flipDirectionMenu'
+            }
+          }
+        }, {
           opcode: 'deleteCostume',
           blockType: BlockType$1.COMMAND,
           text: formatMessage({
@@ -2133,6 +2346,62 @@ var ExtensionBlocks = /*#__PURE__*/function () {
             COSTUME: {
               type: ArgumentType$1.COSTUME,
               menu: 'costumeNamesMenu'
+            }
+          }
+        }, {
+          opcode: 'takeSnapshot',
+          blockType: BlockType$1.REPORTER,
+          blockAllThreads: false,
+          text: formatMessage({
+            id: 'costumex.takeSnapshot',
+            default: 'snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+            description: 'costumex takeSnapshot text'
+          }),
+          func: 'takeSnapshot',
+          arguments: {
+            X: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            },
+            Y: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            },
+            WIDTH: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 480
+            },
+            HEIGHT: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 360
+            }
+          }
+        }, {
+          opcode: 'captureVideoFrame',
+          blockType: BlockType$1.REPORTER,
+          blockAllThreads: false,
+          text: formatMessage({
+            id: 'costumex.captureVideoFrame',
+            default: 'capture video center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+            description: 'costumex captureVideoFrame text'
+          }),
+          func: 'captureVideoFrame',
+          arguments: {
+            X: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            },
+            Y: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 0
+            },
+            WIDTH: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 480
+            },
+            HEIGHT: {
+              type: ArgumentType$1.NUMBER,
+              defaultValue: 360
             }
           }
         }, {
@@ -2167,34 +2436,6 @@ var ExtensionBlocks = /*#__PURE__*/function () {
             COSTUME: {
               type: ArgumentType$1.COSTUME,
               menu: 'costumeNamesMenu'
-            }
-          }
-        }, {
-          opcode: 'takeSnapshot',
-          blockType: BlockType$1.REPORTER,
-          blockAllThreads: false,
-          text: formatMessage({
-            id: 'costumex.takeSnapshot',
-            default: 'snapshot center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
-            description: 'costumex takeSnapshot text'
-          }),
-          func: 'takeSnapshot',
-          arguments: {
-            X: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 0
-            },
-            Y: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 0
-            },
-            WIDTH: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 480
-            },
-            HEIGHT: {
-              type: ArgumentType$1.NUMBER,
-              defaultValue: 360
             }
           }
         }, {
@@ -2255,6 +2496,23 @@ var ExtensionBlocks = /*#__PURE__*/function () {
                 default: 'center y'
               }),
               value: 'centerY'
+            }]
+          },
+          flipDirectionMenu: {
+            items: [{
+              text: formatMessage({
+                id: 'costumex.flipDirectionMenu.horizontal',
+                default: 'left-right',
+                description: 'CostumeX horizontal flip'
+              }),
+              value: 'horizontal'
+            }, {
+              text: formatMessage({
+                id: 'costumex.flipDirectionMenu.vertical',
+                default: 'up-down',
+                description: 'CostumeX vertical flip'
+              }),
+              value: 'vertical'
             }]
           }
         }
@@ -2328,6 +2586,79 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         var context = canvas.getContext('2d');
         context.drawImage(imageElem, (stageWidth / 2 + centerX - width / 2) * stepPixelRatioWidth, (stageHeight / 2 - (centerY + height / 2)) * stepPixelRatioHeight, width * stepPixelRatioWidth, height * stepPixelRatioHeight, 0, 0, canvas.width, canvas.height);
         return " ".concat(canvas.toDataURL(), " ");
+      }).catch(function (error) {
+        log$1.error(error);
+        return error.message;
+      });
+    }
+
+    /**
+     * Capture a video frame.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise<string>} - a Promise that resolves video frame data URL
+     */
+  }, {
+    key: "captureVideoFrame",
+    value: function captureVideoFrame(args, util) {
+      var centerX = Cast$1.toNumber(args.X);
+      var centerY = Cast$1.toNumber(args.Y);
+      var width = Cast$1.toNumber(args.WIDTH);
+      var height = Cast$1.toNumber(args.HEIGHT);
+      var runtime = util.runtime;
+      var captureResolution = 2;
+      var videoProvider = runtime.ioDevices.video.provider;
+      if (!videoProvider) {
+        return Promise.resolve('');
+      }
+      return videoProvider.enableVideo().then(function () {
+        return (
+          // Wait for video to be ready
+          new Promise(function (resolve) {
+            var checkVideoReady = function checkVideoReady() {
+              if (videoProvider.videoReady) {
+                resolve();
+              } else {
+                setTimeout(checkVideoReady, 100);
+              }
+            };
+            checkVideoReady();
+          })
+        );
+      }).then(function () {
+        var sourceCanvas = videoProvider.getFrame({
+          dimensions: [480 * captureResolution, 360 * captureResolution],
+          format: 'canvas'
+        });
+        if (!sourceCanvas) {
+          return '';
+        }
+
+        // Get actual canvas dimensions from video provider
+        var canvasWidth = sourceCanvas.width;
+        var canvasHeight = sourceCanvas.height;
+        var videoWidth = 480,
+          videoHeight = 360;
+
+        // Calculate scale factor from video dimensions to canvas dimensions
+        var scaleX = canvasWidth / videoWidth;
+        var scaleY = canvasHeight / videoHeight;
+
+        // Calculate source rectangle in canvas coordinates (high resolution)
+        var srcX = (videoWidth / 2 + centerX - width / 2) * scaleX;
+        var srcY = (videoHeight / 2 - (centerY + height / 2)) * scaleY;
+        var srcWidth = width * scaleX;
+        var srcHeight = height * scaleY;
+
+        // Create output canvas with high resolution matching source
+        var outputCanvas = document.createElement('canvas');
+        outputCanvas.width = srcWidth;
+        outputCanvas.height = srcHeight;
+        var context = outputCanvas.getContext('2d');
+
+        // Draw the cropped region to output canvas at full resolution
+        context.drawImage(sourceCanvas, srcX, srcY, srcWidth, srcHeight, 0, 0, srcWidth, srcHeight);
+        return " ".concat(outputCanvas.toDataURL(), " ");
       }).catch(function (error) {
         log$1.error(error);
         return error.message;
@@ -2475,6 +2806,26 @@ var ExtensionBlocks = /*#__PURE__*/function () {
         return Math.round(resolution * centerY * spriteScale);
       }
       return 0;
+    }
+
+    /**
+     * Flip a costume.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise} - a Promise that resolves when the costume is flipped
+     */
+  }, {
+    key: "flipCostumeBlock",
+    value: function flipCostumeBlock(args, util) {
+      var target = util.target;
+      var costumeName = Cast$1.toString(args.COSTUME);
+      var direction = Cast$1.toString(args.DIRECTION);
+      var runtime = this.runtime;
+      return flipCostume(runtime, target, costumeName, direction).then(function () {
+        return Promise.resolve();
+      }).catch(function (error) {
+        log$1.error(error);
+      });
     }
   }], [{
     key: "formatMessage",
