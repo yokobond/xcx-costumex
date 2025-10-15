@@ -134,7 +134,7 @@ class ExtensionBlocks {
                     arguments: {
                         DATA: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'data:image/png;base64,XXX'
+                            defaultValue: 'data:image/png;base64,AAA'
                         },
                         NAME: {
                             type: ArgumentType.STRING,
@@ -220,42 +220,6 @@ class ExtensionBlocks {
                     }
                 },
                 {
-                    opcode: 'costumeData',
-                    blockType: BlockType.REPORTER,
-                    text: formatMessage({
-                        id: 'costumex.costumeData',
-                        default: 'image data of costume [COSTUME]',
-                        description: 'CostumeX costumeData text'
-                    }),
-                    func: 'costumeData',
-                    arguments: {
-                        COSTUME: {
-                            type: ArgumentType.COSTUME,
-                            menu: 'costumeNamesMenu'
-                        }
-                    }
-                },
-                {
-                    opcode: 'costumeSize',
-                    blockType: BlockType.REPORTER,
-                    text: formatMessage({
-                        id: 'costumex.costumeSize',
-                        default: '[DIMENSION] of costume [COSTUME]',
-                        description: 'CostumeX costumeSize text'
-                    }),
-                    func: 'costumeSize',
-                    arguments: {
-                        DIMENSION: {
-                            type: ArgumentType.STRING,
-                            menu: 'dimensionMenu'
-                        },
-                        COSTUME: {
-                            type: ArgumentType.COSTUME,
-                            menu: 'costumeNamesMenu'
-                        }
-                    }
-                },
-                {
                     opcode: 'takeSnapshot',
                     blockType: BlockType.REPORTER,
                     blockAllThreads: false,
@@ -310,6 +274,42 @@ class ExtensionBlocks {
                         HEIGHT: {
                             type: ArgumentType.NUMBER,
                             defaultValue: 360
+                        }
+                    }
+                },
+                {
+                    opcode: 'costumeData',
+                    blockType: BlockType.REPORTER,
+                    text: formatMessage({
+                        id: 'costumex.costumeData',
+                        default: 'image data of costume [COSTUME]',
+                        description: 'CostumeX costumeData text'
+                    }),
+                    func: 'costumeData',
+                    arguments: {
+                        COSTUME: {
+                            type: ArgumentType.COSTUME,
+                            menu: 'costumeNamesMenu'
+                        }
+                    }
+                },
+                {
+                    opcode: 'costumeSize',
+                    blockType: BlockType.REPORTER,
+                    text: formatMessage({
+                        id: 'costumex.costumeSize',
+                        default: '[DIMENSION] of costume [COSTUME]',
+                        description: 'CostumeX costumeSize text'
+                    }),
+                    func: 'costumeSize',
+                    arguments: {
+                        DIMENSION: {
+                            type: ArgumentType.STRING,
+                            menu: 'dimensionMenu'
+                        },
+                        COSTUME: {
+                            type: ArgumentType.COSTUME,
+                            menu: 'costumeNamesMenu'
                         }
                     }
                 },
