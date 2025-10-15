@@ -12,7 +12,10 @@
     "costumex.dimensionMenu.width": "width",
     "costumex.dimensionMenu.height": "height",
     "costumex.dimensionMenu.centerX": "center x",
-    "costumex.dimensionMenu.centerY": "center y"
+    "costumex.dimensionMenu.centerY": "center y",
+    "costumex.flipCostume": "flip costume [COSTUME] [DIRECTION]",
+    "costumex.flipDirectionMenu.horizontal": "left-right",
+    "costumex.flipDirectionMenu.vertical": "up-down"
   },
   "ja": {
     "costumex.name": "CostumeX",
@@ -27,7 +30,10 @@
     "costumex.dimensionMenu.width": "幅",
     "costumex.dimensionMenu.height": "高さ",
     "costumex.dimensionMenu.centerX": "中心のX",
-    "costumex.dimensionMenu.centerY": "中心のY"
+    "costumex.dimensionMenu.centerY": "中心のY",
+    "costumex.flipCostume": "コスチューム[COSTUME]を[DIRECTION]反転する",
+    "costumex.flipDirectionMenu.horizontal": "左右",
+    "costumex.flipDirectionMenu.vertical": "上下"
   },
   "ja-Hira": {
     "costumex.name": "CostumeX",
@@ -42,6 +48,9 @@
     "costumex.dimensionMenu.width": "はば",
     "costumex.dimensionMenu.height": "たかさ",
     "costumex.dimensionMenu.centerX": "ちゅうしん の X",
-    "costumex.dimensionMenu.centerY": "ちゅうしん の Y"
+    "costumex.dimensionMenu.centerY": "ちゅうしん の Y",
+    "costumex.flipCostume": "コスチューム[COSTUME]を[DIRECTION]はんてん する",
+    "costumex.flipDirectionMenu.horizontal": "さゆう",
+    "costumex.flipDirectionMenu.vertical": "じょうげ"
   }
 }

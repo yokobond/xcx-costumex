@@ -439,3 +439,174 @@ export const insertImageAsSvgCostume = async function (
 
     return newCostume;
 };
+
+
+/**
+ * Flip a costume horizontally or vertically.
+ * @param {Runtime} runtime - runtime
+ * @param {Target} target - target to flip costume
+ * @param {string} costumeName - name or number of the costume to flip
+ * @param {string} direction - 'horizontal' or 'vertical'
+ * @returns {Promise<Costume>} - a Promise that resolves when the costume is flipped
+ */
+export const flipCostume = async function (runtime, target, costumeName, direction) {
+    const costumeIndex = getCostumeIndexByNameOrNumber(target, costumeName);
+    if (costumeIndex === null) {
+        throw new Error('Costume not found');
+    }
+    
+    const costume = target.getCostumes()[costumeIndex];
+    const asset = costume.asset;
+    const dataFormat = costume.dataFormat;
+    
+    // Check if it's SVG or bitmap
+    if (dataFormat === runtime.storage.DataFormat.SVG) {
+        // Handle SVG flip
+        const svgString = asset.decodeText();
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+        const svgElement = svgDoc.documentElement;
+        
+        // Get current dimensions
+        const width = parseFloat(svgElement.getAttribute('width')) || 100;
+        const height = parseFloat(svgElement.getAttribute('height')) || 100;
+        
+        // Create a transform group to flip the content
+        const g = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+        
+        if (direction === 'horizontal') {
+            // Flip horizontally: scale(-1, 1) and translate
+            g.setAttribute('transform', `scale(-1, 1) translate(${-width}, 0)`);
+        } else if (direction === 'vertical') {
+            // Flip vertically: scale(1, -1) and translate
+            g.setAttribute('transform', `scale(1, -1) translate(0, ${-height})`);
+        }
+        
+        // Move all children into the transform group
+        while (svgElement.firstChild) {
+            g.appendChild(svgElement.firstChild);
+        }
+        svgElement.appendChild(g);
+        
+        const flippedSvgString = new XMLSerializer().serializeToString(svgDoc);
+        const svgBytes = new TextEncoder().encode(flippedSvgString);
+        
+        // Create new asset
+        const newAsset = runtime.storage.createAsset(
+            runtime.storage.AssetType.ImageVector,
+            runtime.storage.DataFormat.SVG,
+            svgBytes,
+            null,
+            true
+        );
+        
+        // Update costume with new asset
+        costume.asset = newAsset;
+        costume.md5 = `${newAsset.assetId}.svg`;
+        costume.assetId = newAsset.assetId;
+        
+        // Reload the skin
+        if (costume.skinId) {
+            runtime.renderer.destroySkin(costume.skinId);
+        }
+        costume.skinId = runtime.renderer.createSVGSkin(flippedSvgString);
+        costume.size = runtime.renderer.getSkinSize(costume.skinId);
+        const rotationCenter = runtime.renderer.getSkinRotationCenter(costume.skinId);
+        costume.rotationCenterX = rotationCenter[0];
+        costume.rotationCenterY = rotationCenter[1];
+        
+        // Update the drawable if this is the current costume
+        if (target.currentCostume === costumeIndex) {
+            target.setCostume(costumeIndex);
+            // Force update the drawable
+            const drawable = runtime.renderer._allDrawables[target.drawableID];
+            if (drawable) {
+                drawable.updateSkin(costume.skinId);
+                runtime.requestRedraw();
+            }
+        }
+        
+    } else {
+        // Handle bitmap flip
+        const blob = new Blob([asset.data], {type: asset.assetType.contentType});
+        const imageElement = new Image();
+        imageElement.src = URL.createObjectURL(blob);
+        
+        await new Promise((resolve, reject) => {
+            imageElement.onload = resolve;
+            imageElement.onerror = () => reject(new Error('Image load failed'));
+        });
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = imageElement.width;
+        canvas.height = imageElement.height;
+        const ctx = canvas.getContext('2d');
+        
+        // Flip the canvas
+        if (direction === 'horizontal') {
+            ctx.scale(-1, 1);
+            ctx.drawImage(imageElement, -canvas.width, 0);
+        } else if (direction === 'vertical') {
+            ctx.scale(1, -1);
+            ctx.drawImage(imageElement, 0, -canvas.height);
+        }
+        
+        URL.revokeObjectURL(imageElement.src);
+        
+        // Convert canvas to data URL
+        const flippedDataURL = canvas.toDataURL(`image/${dataFormat}`);
+        const binaryData = dataURLToBinary(flippedDataURL);
+        
+        // Create new asset
+        const newAsset = runtime.storage.createAsset(
+            runtime.storage.AssetType.ImageBitmap,
+            dataFormat,
+            binaryData,
+            null,
+            true
+        );
+        
+        // Update costume with new asset
+        costume.asset = newAsset;
+        costume.md5 = `${newAsset.assetId}.${dataFormat}`;
+        costume.assetId = newAsset.assetId;
+        
+        // Reload the skin
+        if (costume.skinId) {
+            runtime.renderer.destroySkin(costume.skinId);
+        }
+        
+        const newBlob = new Blob([newAsset.data], {type: newAsset.assetType.contentType});
+        const imageBitmap = await createImageBitmap(newBlob);
+        
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = imageBitmap.width;
+        tempCanvas.height = imageBitmap.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(imageBitmap, 0, 0);
+        
+        costume.skinId = runtime.renderer.createBitmapSkin(tempCanvas, costume.bitmapResolution);
+        const renderSize = runtime.renderer.getSkinSize(costume.skinId);
+        costume.size = [
+            renderSize[0] * costume.bitmapResolution,
+            renderSize[1] * costume.bitmapResolution
+        ];
+        const rotationCenter = runtime.renderer.getSkinRotationCenter(costume.skinId);
+        costume.rotationCenterX = rotationCenter[0] * costume.bitmapResolution;
+        costume.rotationCenterY = rotationCenter[1] * costume.bitmapResolution;
+        
+        // Update the drawable if this is the current costume
+        if (target.currentCostume === costumeIndex) {
+            target.setCostume(costumeIndex);
+            // Force update the drawable
+            const drawable = runtime.renderer._allDrawables[target.drawableID];
+            if (drawable) {
+                drawable.updateSkin(costume.skinId);
+                runtime.requestRedraw();
+            }
+        }
+    }
+    
+    runtime.emitProjectChanged();
+    return costume;
+};

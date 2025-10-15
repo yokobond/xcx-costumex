@@ -184,6 +184,26 @@ class ExtensionBlocks {
                     }
                 },
                 {
+                    opcode: 'flipCostume',
+                    blockType: BlockType.COMMAND,
+                    text: formatMessage({
+                        id: 'costumex.flipCostume',
+                        default: 'flip costume [COSTUME] [DIRECTION]',
+                        description: 'CostumeX flipCostume text'
+                    }),
+                    func: 'flipCostumeBlock',
+                    arguments: {
+                        COSTUME: {
+                            type: ArgumentType.COSTUME,
+                            menu: 'costumeNamesMenu'
+                        },
+                        DIRECTION: {
+                            type: ArgumentType.STRING,
+                            menu: 'flipDirectionMenu'
+                        }
+                    }
+                },
+                {
                     opcode: 'deleteCostume',
                     blockType: BlockType.COMMAND,
                     text: formatMessage({
@@ -328,6 +348,26 @@ class ExtensionBlocks {
                                 default: 'center y'
                             }),
                             value: 'centerY'
+                        }
+                    ]
+                },
+                flipDirectionMenu: {
+                    items: [
+                        {
+                            text: formatMessage({
+                                id: 'costumex.flipDirectionMenu.horizontal',
+                                default: 'left-right',
+                                description: 'CostumeX horizontal flip'
+                            }),
+                            value: 'horizontal'
+                        },
+                        {
+                            text: formatMessage({
+                                id: 'costumex.flipDirectionMenu.vertical',
+                                default: 'up-down',
+                                description: 'CostumeX vertical flip'
+                            }),
+                            value: 'vertical'
                         }
                     ]
                 }
@@ -540,6 +580,25 @@ class ExtensionBlocks {
             return Math.round(resolution * centerY * spriteScale);
         }
         return 0;
+    }
+
+    /**
+     * Flip a costume.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise} - a Promise that resolves when the costume is flipped
+     */
+    flipCostumeBlock (args, util) {
+        const target = util.target;
+        const costumeName = Cast.toString(args.COSTUME);
+        const direction = Cast.toString(args.DIRECTION);
+        const runtime = this.runtime;
+
+        return flipCostume(runtime, target, costumeName, direction)
+            .then(() => Promise.resolve())
+            .catch(error => {
+                log.error(error);
+            });
     }
 }
 
