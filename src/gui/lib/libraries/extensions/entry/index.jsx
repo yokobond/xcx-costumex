@@ -5,6 +5,7 @@
 import iconURL from './entry-icon.png';
 import insetIconURL from './inset-icon.svg';
 import translations from './translations.json';
+import packageJson from '../../../../../../package.json';
 
 /**
  * Formatter to translate the messages in this extension.
@@ -14,7 +15,7 @@ import translations from './translations.json';
  */
 let formatMessage = messageData => messageData.defaultMessage;
 
-const version = 'v1.0.1';
+const version = packageJson.version;
 
 const entry = {
     get name () {
@@ -26,7 +27,7 @@ const entry = {
     },
     extensionId: 'costumex',
     extensionURL: 'https://yokobond.github.io/xcx-costumex/dist/costumex.mjs',
-    collaborator: 'Yengawa Lab',
+    collaborator: 'Koji Yokokawa',
     iconURL: iconURL,
     insetIconURL: insetIconURL,
     get description () {
