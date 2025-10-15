@@ -1,6 +1,6 @@
 {
   "name": "xcx-costumex",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scripts": {
     "setup-dev": "node ./scripts/setup-dev.mjs",
     "build": "rollup -c ./scripts/rollup.config.mjs",
