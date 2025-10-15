@@ -433,11 +433,42 @@ export const insertImageAsSvgCostume = async function (
 
     const currentCostumeIndex = target.currentCostume;
     const finalCostumeIndex = (typeof insertIndex === 'number') ? insertIndex : target.getCostumes().length;
-    target.addCostume(newCostume, finalCostumeIndex);
-    target.setCostume(currentCostumeIndex);
+    
+    // Check if insertion will change which costume the current index points to
+    const willShiftCurrentCostume = finalCostumeIndex <= currentCostumeIndex;
+    
+    // Add costume using the sprite's direct method to avoid triggering target events
+    target.sprite.addCostumeAt(newCostume, finalCostumeIndex);
+    
+    // Update the current costume index directly without triggering setCostume
+    if (willShiftCurrentCostume) {
+        target.currentCostume = currentCostumeIndex + 1;
+    }
+    // If not shifted, the index remains correct
+    
+    // Force an immediate redraw to stabilize the renderer state
+    if (runtime.renderer && target.drawableID !== null) {
+        const costume = target.getCostumes()[target.currentCostume];
+        if (costume && costume.skinId !== null) {
+            runtime.renderer.updateDrawableSkinId(target.drawableID, costume.skinId);
+            // Immediately draw to ensure the renderer is in a stable state
+            runtime.renderer.draw();
+        }
+    }
+    
     runtime.emitProjectChanged();
-
-    return newCostume;
+    
+    // Wait for multiple animation frames to ensure the costume is fully rendered
+    // This prevents flickering when immediately switching to the newly added costume
+    return new Promise(resolve => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    resolve(newCostume);
+                });
+            });
+        });
+    });
 };
 
 
