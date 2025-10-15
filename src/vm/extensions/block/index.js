@@ -6,7 +6,7 @@ import translations from './translations.json';
 import blockIcon from './block-icon.png';
 
 import {checkDebugMode} from './dev-util.js';
-import {insertImageAsSvgCostume, getCostumeIndexByNameOrNumber} from './costume-util';
+import {insertImageAsSvgCostume, getCostumeIndexByNameOrNumber, flipCostume} from './costume-util';
 
 /**
  * Formatter which is used for translation.
@@ -285,6 +285,35 @@ class ExtensionBlocks {
                     }
                 },
                 {
+                    opcode: 'captureVideoFrame',
+                    blockType: BlockType.REPORTER,
+                    blockAllThreads: false,
+                    text: formatMessage({
+                        id: 'costumex.captureVideoFrame',
+                        default: 'capture video center x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+                        description: 'costumex captureVideoFrame text'
+                    }),
+                    func: 'captureVideoFrame',
+                    arguments: {
+                        X: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        Y: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        WIDTH: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 480
+                        },
+                        HEIGHT: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 360
+                        }
+                    }
+                },
+                {
                     opcode: 'costumesLength',
                     blockType: BlockType.REPORTER,
                     disableMonitor: true,
@@ -444,6 +473,91 @@ class ExtensionBlocks {
                     canvas.width,
                     canvas.height);
                 return ` ${canvas.toDataURL()} `;
+            })
+            .catch(error => {
+                log.error(error);
+                return error.message;
+            });
+    }
+
+    /**
+     * Capture a video frame.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise<string>} - a Promise that resolves video frame data URL
+     */
+    captureVideoFrame (args, util) {
+        const centerX = Cast.toNumber(args.X);
+        const centerY = Cast.toNumber(args.Y);
+        const width = Cast.toNumber(args.WIDTH);
+        const height = Cast.toNumber(args.HEIGHT);
+        const runtime = util.runtime;
+        const captureResolution = 2;
+        
+        const videoProvider = runtime.ioDevices.video.provider;
+        if (!videoProvider) {
+            return Promise.resolve('');
+        }
+
+        return videoProvider.enableVideo()
+            .then(() =>
+                // Wait for video to be ready
+                new Promise(resolve => {
+                    const checkVideoReady = () => {
+                        if (videoProvider.videoReady) {
+                            resolve();
+                        } else {
+                            setTimeout(checkVideoReady, 100);
+                        }
+                    };
+                    checkVideoReady();
+                })
+            )
+            .then(() => {
+                const sourceCanvas = videoProvider.getFrame({
+                    dimensions: [480 * captureResolution, 360 * captureResolution],
+                    format: 'canvas'
+                });
+                
+                if (!sourceCanvas) {
+                    return '';
+                }
+
+                // Get actual canvas dimensions from video provider
+                const canvasWidth = sourceCanvas.width;
+                const canvasHeight = sourceCanvas.height;
+                const [videoWidth, videoHeight] = [480, 360];
+                
+                // Calculate scale factor from video dimensions to canvas dimensions
+                const scaleX = canvasWidth / videoWidth;
+                const scaleY = canvasHeight / videoHeight;
+                
+                // Calculate source rectangle in canvas coordinates (high resolution)
+                const srcX = ((videoWidth / 2) + centerX - (width / 2)) * scaleX;
+                const srcY = ((videoHeight / 2) - (centerY + (height / 2))) * scaleY;
+                const srcWidth = width * scaleX;
+                const srcHeight = height * scaleY;
+                
+                // Create output canvas with high resolution matching source
+                const outputCanvas = document.createElement('canvas');
+                outputCanvas.width = srcWidth;
+                outputCanvas.height = srcHeight;
+                const context = outputCanvas.getContext('2d');
+                
+                // Draw the cropped region to output canvas at full resolution
+                context.drawImage(
+                    sourceCanvas,
+                    srcX,
+                    srcY,
+                    srcWidth,
+                    srcHeight,
+                    0,
+                    0,
+                    srcWidth,
+                    srcHeight
+                );
+                
+                return ` ${outputCanvas.toDataURL()} `;
             })
             .catch(error => {
                 log.error(error);
