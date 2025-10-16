@@ -19,6 +19,10 @@ var translations$1 = {
 }
 };
 
+var version$1 = "1.3.0";
+var packageJson = {
+	version: version$1};
+
 /**
  * This is an extension for Xcratch.
  */
@@ -33,7 +37,7 @@ var translations$1 = {
 var formatMessage$1 = function formatMessage(messageData) {
   return messageData.defaultMessage;
 };
-var version = 'v1.0.1';
+var version = packageJson.version;
 var entry = {
   get name() {
     return formatMessage$1({
@@ -44,7 +48,7 @@ var entry = {
   },
   extensionId: 'costumex',
   extensionURL: 'https://yokobond.github.io/xcx-costumex/dist/costumex.mjs',
-  collaborator: 'Yengawa Lab',
+  collaborator: 'Koji Yokokawa',
   iconURL: img$2,
   insetIconURL: img$1,
   get description() {
@@ -1938,6 +1942,8 @@ var insertImageAsSvgCostume = /*#__PURE__*/function () {
       newCostume,
       currentCostumeIndex,
       finalCostumeIndex,
+      willShiftCurrentCostume,
+      costume,
       _args2 = arguments;
     return _regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
@@ -2008,12 +2014,39 @@ var insertImageAsSvgCostume = /*#__PURE__*/function () {
         case 32:
           newCostume = createAndAddSvgCostume(svgData, runtime, imageName);
           currentCostumeIndex = target.currentCostume;
-          finalCostumeIndex = typeof insertIndex === 'number' ? insertIndex : target.getCostumes().length;
-          target.addCostume(newCostume, finalCostumeIndex);
-          target.setCostume(currentCostumeIndex);
+          finalCostumeIndex = typeof insertIndex === 'number' ? insertIndex : target.getCostumes().length; // Check if insertion will change which costume the current index points to
+          willShiftCurrentCostume = finalCostumeIndex <= currentCostumeIndex; // Add costume using the sprite's direct method to avoid triggering target events
+          target.sprite.addCostumeAt(newCostume, finalCostumeIndex);
+
+          // Update the current costume index directly without triggering setCostume
+          if (willShiftCurrentCostume) {
+            target.currentCostume = currentCostumeIndex + 1;
+          }
+          // If not shifted, the index remains correct
+
+          // Force an immediate redraw to stabilize the renderer state
+          if (runtime.renderer && target.drawableID !== null) {
+            costume = target.getCostumes()[target.currentCostume];
+            if (costume && costume.skinId !== null) {
+              runtime.renderer.updateDrawableSkinId(target.drawableID, costume.skinId);
+              // Immediately draw to ensure the renderer is in a stable state
+              runtime.renderer.draw();
+            }
+          }
           runtime.emitProjectChanged();
-          return _context2.abrupt("return", newCostume);
-        case 39:
+
+          // Wait for multiple animation frames to ensure the costume is fully rendered
+          // This prevents flickering when immediately switching to the newly added costume
+          return _context2.abrupt("return", new Promise(function (resolve) {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                  resolve(newCostume);
+                });
+              });
+            });
+          }));
+        case 41:
         case "end":
           return _context2.stop();
       }
