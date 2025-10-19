@@ -9,6 +9,15 @@ import importImage from '@rollup/plugin-image';
 import multi from '@rollup/plugin-multi-entry';
 import json from '@rollup/plugin-json';
 
+// Read package.json to get extensionId
+const packageJsonPath = path.resolve(process.cwd(), './package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+const EXTENSION_ID = packageJson.extensionId;
+if (!EXTENSION_ID) {
+    console.error('Error: extensionId not found in package.json');
+    process.exit(1);
+}
+
 // path for block
 const blockSrcDir = path.resolve(process.cwd(), './src/vm/extensions/block');
 const blockFile = path.resolve(blockSrcDir, 'index.js');
@@ -16,10 +25,8 @@ const blockFile = path.resolve(blockSrcDir, 'index.js');
 const entrySrcDir = path.resolve(process.cwd(), './src/gui/lib/libraries/extensions/entry');
 const entryFile = path.resolve(entrySrcDir, 'index.jsx');
 // path for output
-const moduleName = 'costumex';
 const outputDir = path.resolve(process.cwd(), './dist');
-fs.emptyDirSync(outputDir);
-const moduleFile = path.resolve(outputDir, `${moduleName}.mjs`);
+const moduleFile = path.resolve(outputDir, `${EXTENSION_ID}.mjs`);
 
 const rollupOptions = {
     input: [entryFile, blockFile],
@@ -27,10 +34,11 @@ const rollupOptions = {
     plugins: [
         multi(),
         importImage(),
-        json(),
+        commonjs(),
+        nodePolifills(),
         nodeResolve({
             browser: true, 
-            preferBuiltins: false, // Changed to false for browser environment
+            preferBuiltins: false, 
             modulePaths: [
                 path.resolve(process.cwd(), './node_modules'),
             ],
@@ -38,11 +46,9 @@ const rollupOptions = {
             include: ['**'],
             skip: [],
         }),
-        commonjs(),
-        nodePolifills(),
+        json(),
         babel({
             babelrc: false,
-            // Exclude node_modules from babel transformation except for specific packages
             exclude: ['node_modules/**'],
             presets: [
                 ['@babel/preset-env',
@@ -76,7 +82,6 @@ const rollupOptions = {
         format: 'es',
         sourcemap: true,
     },
-    external: [], // Keep this empty to bundle everything
     watch: {
         clearScreen: false,
         chokidar: {
@@ -84,6 +89,7 @@ const rollupOptions = {
         },
         buildDelay: 500,
     },
+    external: [],
 }
 
 export default rollupOptions;
