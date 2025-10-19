@@ -1,21 +1,84 @@
-import { describe, it } from "mocha";
-import { expect } from "chai";
 import { blockClass } from "../../src/vm/extensions/block/index.js";
 
 describe("blockClass", () => {
-    const runtime = {
-        formatMessage: function (msg) {
-            return msg.default;
-        }
+    const formatMessage = function (msg) {
+        return msg.default;
     };
-    it("should create an instance of blockClass", () => {
+    formatMessage.setup = function () {
+        return {
+            locale: 'en',
+            translations: {
+                en: {}
+            }
+        };
+    };
+
+    const runtime = {
+        formatMessage: formatMessage,
+        on: jest.fn()
+    };
+
+    test("should create an instance of blockClass", () => {
         const block = new blockClass(runtime);
-        expect(block).to.be.an.instanceOf(blockClass);
+        expect(block).toBeInstanceOf(blockClass);
     });
 
-    it("doIt('3 + 4') should return 7", () => {
+    test("should have getInfo method that returns extension metadata", () => {
         const block = new blockClass(runtime);
-        const result = block.doIt({SCRIPT: "3 + 4"});
-        expect(result).to.equal(7);
+        const info = block.getInfo();
+        expect(info).toBeDefined();
+        expect(info.id).toBe('costumex');
+        expect(info.name).toBe('CostumeX');
+        expect(info.blocks).toBeDefined();
+        expect(Array.isArray(info.blocks)).toBe(true);
+    });
+
+    test("costumesLength should return the number of costumes", () => {
+        const block = new blockClass(runtime);
+        const util = {
+            target: {
+                sprite: {
+                    costumes: [
+                        { name: 'costume1' },
+                        { name: 'costume2' },
+                        { name: 'costume3' }
+                    ]
+                }
+            }
+        };
+        const result = block.costumesLength({}, util);
+        expect(result).toBe(3);
+    });
+
+    test("costumeNameAt should return the costume name at given index", () => {
+        const block = new blockClass(runtime);
+        const util = {
+            target: {
+                sprite: {
+                    costumes: [
+                        { name: 'costume1' },
+                        { name: 'costume2' },
+                        { name: 'costume3' }
+                    ]
+                }
+            }
+        };
+        const result = block.costumeNameAt({ INDEX: 2 }, util);
+        expect(result).toBe('costume2');
+    });
+
+    test("costumeNameAt should return empty string for invalid index", () => {
+        const block = new blockClass(runtime);
+        const util = {
+            target: {
+                sprite: {
+                    costumes: [
+                        { name: 'costume1' }
+                    ]
+                }
+            }
+        };
+        const result = block.costumeNameAt({ INDEX: 5 }, util);
+        expect(result).toBe('');
     });
 });
