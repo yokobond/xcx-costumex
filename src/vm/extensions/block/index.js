@@ -123,6 +123,86 @@ class ExtensionBlocks {
             showStatusButton: false,
             blocks: [
                 {
+                    opcode: 'insertSnapshotAsCostume',
+                    blockType: BlockType.COMMAND,
+                    text: formatMessage({
+                        id: 'costumex.insertSnapshotAsCostume',
+                        default: 'insert snapshot [NAME] at [INDEX] x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+                        description: 'costumex insertSnapshotAsCostume text'
+                    }),
+                    func: 'insertSnapshotAsCostume',
+                    arguments: {
+                        NAME: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'costumex.insertSnapshotAsCostume.defaultCostumeName',
+                                default: 'snapshot',
+                                description: 'CostumeX insertSnapshotAsCostume defaultCostumeName text'
+                            })
+                        },
+                        INDEX: {
+                            type: ArgumentType.STRING,
+                            defaultValue: ' '
+                        },
+                        X: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        Y: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        WIDTH: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 480
+                        },
+                        HEIGHT: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 360
+                        }
+                    }
+                },
+                {
+                    opcode: 'insertCameraImageAsCostume',
+                    blockType: BlockType.COMMAND,
+                    text: formatMessage({
+                        id: 'costumex.insertCameraImageAsCostume',
+                        default: 'insert video frame [NAME] at [INDEX] x:[X] y:[Y] w:[WIDTH] h:[HEIGHT]',
+                        description: 'costumex insertCameraImageAsCostume text'
+                    }),
+                    func: 'insertCameraImageAsCostume',
+                    arguments: {
+                        NAME: {
+                            type: ArgumentType.STRING,
+                            defaultValue: formatMessage({
+                                id: 'costumex.insertCameraImageAsCostume.defaultCostumeName',
+                                default: 'video',
+                                description: 'CostumeX insertCameraImageAsCostume defaultCostumeName text'
+                            })
+                        },
+                        INDEX: {
+                            type: ArgumentType.STRING,
+                            defaultValue: ' '
+                        },
+                        X: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        Y: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 0
+                        },
+                        WIDTH: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 480
+                        },
+                        HEIGHT: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 360
+                        }
+                    }
+                },
+                {
                     opcode: 'insertImageAsCostume',
                     blockType: BlockType.COMMAND,
                     text: formatMessage({
@@ -221,6 +301,7 @@ class ExtensionBlocks {
                 },
                 {
                     opcode: 'takeSnapshot',
+                    hideFromPalette: true, // Use insertSnapshotAsCostume instead.
                     blockType: BlockType.REPORTER,
                     blockAllThreads: false,
                     text: formatMessage({
@@ -250,6 +331,7 @@ class ExtensionBlocks {
                 },
                 {
                     opcode: 'captureVideoFrame',
+                    hideFromPalette: true, // Use insertCameraImageAsCostume instead.
                     blockType: BlockType.REPORTER,
                     blockAllThreads: false,
                     text: formatMessage({
@@ -474,6 +556,74 @@ class ExtensionBlocks {
                     canvas.height);
                 return ` ${canvas.toDataURL()} `;
             })
+            .catch(error => {
+                log.error(error);
+                return error.message;
+            });
+    }
+
+    /**
+     * Insert a snapshot as a costume.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise<string>} - a Promise that resolves when the snapshot is added then returns the data URL
+     */
+    insertSnapshotAsCostume (args, util) {
+        const target = util.target;
+        const imageName = Cast.toString(args.NAME);
+        const runtime = this.runtime;
+        let insertIndex = Cast.toNumber(args.INDEX);
+        if (isNaN(insertIndex) || insertIndex < 1) {
+            insertIndex = 1;
+        }
+        if (insertIndex > target.getCostumes().length + 1) {
+            insertIndex = target.getCostumes().length + 1;
+        }
+        insertIndex -= 1; // Convert to 0-origin
+
+        const width = Cast.toNumber(args.WIDTH);
+        const height = Cast.toNumber(args.HEIGHT);
+
+        return this.takeSnapshot(args, util)
+            .then(dataURL => {
+                const trimmedDataURL = dataURL.trim();
+                return insertImageAsSvgCostume(runtime, target, trimmedDataURL, width, height, imageName, insertIndex);
+            })
+            .then(costume => ` ${costume.asset.encodeDataURI()} `)
+            .catch(error => {
+                log.error(error);
+                return error.message;
+            });
+    }
+
+    /**
+     * Insert a video frame as a costume.
+     * @param {object} args - the block's arguments.
+     * @param {object} util - utility object provided by the runtime.
+     * @returns {Promise<string>} - a Promise that resolves when the video frame is added then returns the data URL
+     */
+    insertCameraImageAsCostume (args, util) {
+        const target = util.target;
+        const imageName = Cast.toString(args.NAME);
+        const runtime = this.runtime;
+        let insertIndex = Cast.toNumber(args.INDEX);
+        if (isNaN(insertIndex) || insertIndex < 1) {
+            insertIndex = 1;
+        }
+        if (insertIndex > target.getCostumes().length + 1) {
+            insertIndex = target.getCostumes().length + 1;
+        }
+        insertIndex -= 1; // Convert to 0-origin
+
+        const width = Cast.toNumber(args.WIDTH);
+        const height = Cast.toNumber(args.HEIGHT);
+
+        return this.captureVideoFrame(args, util)
+            .then(dataURL => {
+                const trimmedDataURL = dataURL.trim();
+                return insertImageAsSvgCostume(runtime, target, trimmedDataURL, width, height, imageName, insertIndex);
+            })
+            .then(costume => ` ${costume.asset.encodeDataURI()} `)
             .catch(error => {
                 log.error(error);
                 return error.message;
