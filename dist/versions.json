@@ -1,0 +1,11 @@
+{
+  "extensionId": "costumex",
+  "versions": [
+    {
+      "version": "1.4.0",
+      "buildDate": "2025-10-19T11:44:27.348Z",
+      "module": "1.4.0/costumex.mjs"
+    }
+  ],
+  "latest": "1.4.0"
+}
